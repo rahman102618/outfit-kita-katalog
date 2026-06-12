@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OK Outfit Kita — Katalog Premium</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      color: #171717;
+      background:
+        radial-gradient(circle at left top, rgba(251,191,36,.18), transparent 34%),
+        radial-gradient(circle at right top, rgba(244,114,182,.10), transparent 30%),
+        linear-gradient(180deg, #fff8ee 0%, #f8f0e5 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1240px; margin: auto; padding: 22px 18px 70px; }
+
+    .hero {
+      position: relative; overflow: hidden; border-radius: 42px; padding: 34px;
+      background: linear-gradient(140deg, #050505 0%, #111111 45%, #17120b 100%);
+      color: white; border: 1px solid rgba(251,191,36,.18);
+      box-shadow: 0 30px 80px rgba(68,64,60,.22);
+    }
+    .hero::before {
+      content: ""; position: absolute; width: 460px; height: 460px; border-radius: 50%;
+      right: -140px; top: -140px; background: rgba(251,191,36,.13); filter: blur(55px);
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 18px; border: 1px solid rgba(251,191,36,.14);
+      border-radius: 32px; pointer-events: none;
+    }
+    .hero-grid {
+      position: relative; z-index: 2; display: grid; grid-template-columns: 255px 1fr;
+      gap: 42px; align-items: center;
+    }
+    .logo-card {
+      width: 255px; height: 255px; border-radius: 38px; overflow: hidden; background: #000;
+      box-shadow: 0 22px 48px rgba(0,0,0,.38), 0 0 0 1px rgba(251,191,36,.24);
+    }
+    .logo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px;
+      border-radius: 999px; background: rgba(251,191,36,.12);
+      border: 1px solid rgba(251,191,36,.24); color: #fde68a;
+      font-size: 13px; font-weight: 900; letter-spacing: .3px;
+    }
+    h1 {
+      margin: 18px 0 0; font-size: clamp(42px, 5.6vw, 78px);
+      line-height: .98; letter-spacing: -2.6px; font-weight: 1000; max-width: 850px;
+    }
+    .gold {
+      background: linear-gradient(90deg, #fcd34d, #f59e0b, #fb7185);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lead {
+      margin: 22px 0 0; max-width: 760px; color: rgba(255,255,255,.72);
+      font-size: 18px; line-height: 1.8; font-weight: 650;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 15px 22px; border-radius: 18px; font-weight: 1000; transition: .2s ease;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: #fbbf24; color: #09090b; box-shadow: 0 16px 36px rgba(251,191,36,.28); }
+    .btn-primary:hover { transform: translateY(-2px); background: #facc15; }
+    .btn-soft { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); color: white; }
+    .btn-soft:hover { background: rgba(255,255,255,.13); }
+
+    .guide { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .step {
+      background: rgba(255,255,255,.9); border: 1px solid rgba(231,229,228,.96);
+      border-radius: 28px; padding: 22px; box-shadow: 0 14px 34px rgba(120,113,108,.08);
+    }
+    .num {
+      width: 42px; height: 42px; border-radius: 16px; display: grid; place-items: center;
+      background: #111; color: #fbbf24; font-weight: 1000; margin-bottom: 14px;
+    }
+    .step h3 { margin: 0; font-size: 18px; }
+    .step p { margin: 9px 0 0; color: #57534e; font-size: 14px; line-height: 1.58; font-weight: 650; }
+
+    .catalog {
+      margin-top: 48px; background: rgba(255,255,255,.60);
+      border: 1px solid rgba(255,255,255,.92); border-radius: 38px; padding: 24px;
+      box-shadow: 0 20px 60px rgba(120,113,108,.10); backdrop-filter: blur(18px);
+    }
+    .mini-title {
+      margin: 0; color: #a16207; text-transform: uppercase; letter-spacing: 4px;
+      font-size: 12px; font-weight: 1000;
+    }
+    .catalog h2 {
+      margin: 8px 0 0; font-size: clamp(30px, 4vw, 50px);
+      line-height: 1.04; letter-spacing: -1.5px; max-width: 720px;
+    }
+    .catalog-desc { margin: 10px 0 0; color: #57534e; line-height: 1.65; font-weight: 650; max-width: 720px; }
+    .toolbar { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; margin: 22px 0; }
+    .searchbox input {
+      width: 100%; border: 1px solid #e7e5e4; background: white; padding: 16px 18px;
+      border-radius: 18px; font-weight: 850; outline: none; box-shadow: 0 10px 22px rgba(120,113,108,.06);
+    }
+    details.filter-box {
+      min-width: 250px; background: white; border: 1px solid #e7e5e4;
+      border-radius: 20px; box-shadow: 0 10px 22px rgba(120,113,108,.06); overflow: hidden;
+    }
+    details.filter-box[open] { border-color: #f5d77e; box-shadow: 0 16px 34px rgba(120,113,108,.10); }
+    .filter-summary {
+      list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 16px 18px; font-weight: 950; user-select: none;
+    }
+    .filter-summary::-webkit-details-marker { display: none; }
+    .summary-left { display: inline-flex; align-items: center; gap: 10px; }
+    .summary-icon {
+      width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center;
+      background: #fff4dd; color: #a16207; font-size: 16px; font-weight: 1000;
+    }
+    .filter-panel { border-top: 1px solid #f1f5f9; padding: 16px; background: #fffdfa; }
+    .filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+    .field label {
+      display: block; font-size: 11px; font-weight: 1000; letter-spacing: .7px;
+      color: #a16207; text-transform: uppercase; margin: 0 0 7px 2px;
+    }
+    .field input,.field select {
+      width: 100%; border: 1px solid #e7e5e4; background: white; padding: 13px 14px;
+      border-radius: 15px; font-weight: 850; outline: none; box-shadow: 0 8px 18px rgba(120,113,108,.05);
+    }
+    .filter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+    .small-btn { border: none; border-radius: 14px; padding: 11px 15px; font-weight: 1000; cursor: pointer; }
+    .reset-btn { background: #f5f5f4; color: #44403c; }
+    .apply-btn { background: #111; color: white; }
+
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .card {
+      background: white; border: 1px solid #e7e5e4; border-radius: 28px; overflow: hidden;
+      box-shadow: 0 12px 30px rgba(120,113,108,.09); transition: .22s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 24px 52px rgba(120,113,108,.15); }
+    .photo { height: 305px; position: relative; overflow: hidden; background: #eee; }
+    .photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: .6s ease; }
+    .card:hover .photo img { transform: scale(1.05); }
+    .photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.76), transparent 62%); }
+    .code {
+      position: absolute; z-index: 2; left: 14px; top: 14px;
+      background: rgba(255,255,255,.96); color: #111; border-radius: 999px;
+      padding: 9px 13px; font-size: 12px; font-weight: 1000;
+    }
+    .size {
+      position: absolute; z-index: 2; left: 16px; bottom: 49px;
+      color: rgba(255,255,255,.88); font-size: 13px; font-weight: 850;
+    }
+    .price {
+      position: absolute; z-index: 2; left: 16px; bottom: 15px; color: white;
+      font-size: 27px; font-weight: 1000; text-shadow: 0 4px 12px rgba(0,0,0,.36);
+    }
+    .content { padding: 20px; }
+    .chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+    .chip { padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 1000; background: #fff4dd; color: #92400e; border: 1px solid #fcd34d; }
+    .content h3 { margin: 0; font-size: 18px; line-height: 1.25; }
+    .sub { margin: 7px 0 0; color: #78716c; font-size: 13px; font-weight: 850; }
+    .desc { margin: 13px 0 0; color: #57534e; font-size: 13.5px; line-height: 1.58; font-weight: 600; }
+    .buy {
+      margin-top: 17px; width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 14px; border-radius: 17px; background: #111; color: white; font-weight: 1000;
+    }
+    .buy:hover { background: #000; }
+
+    footer {
+      margin-top: 36px; position: relative; overflow: hidden; border-radius: 38px; padding: 24px 26px;
+      background: linear-gradient(140deg, #070707, #17110a 75%, #050505);
+      color: white; border: 1px solid rgba(251,191,36,.20); box-shadow: 0 24px 60px rgba(68,64,60,.18);
+    }
+    footer::before {
+      content: ""; position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      right: -90px; bottom: -130px; background: rgba(251,191,36,.12); filter: blur(45px);
+    }
+    .footer-inner {
+      position: relative; z-index: 2; display: grid; grid-template-columns: auto 1fr auto;
+      gap: 18px; align-items: center;
+    }
+    .footer-logo {
+      width: 86px; height: 86px; border-radius: 24px; overflow: hidden; background: #000;
+      box-shadow: 0 0 0 1px rgba(251,191,36,.22), 0 16px 32px rgba(0,0,0,.28);
+    }
+    .footer-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    footer h3 { margin: 0; font-size: 30px; letter-spacing: -.5px; }
+    footer p { margin: 6px 0 0; color: rgba(255,255,255,.64); line-height: 1.6; font-weight: 740; max-width: 560px; }
+    .tiktok-icon-link {
+      width: 62px; height: 62px; border-radius: 20px; display: grid; place-items: center;
+      background: white; box-shadow: 0 16px 32px rgba(0,0,0,.18); transition: .2s ease; flex-shrink: 0;
+    }
+    .tiktok-icon-link:hover { transform: translateY(-2px); }
+    .tiktok-icon { width: 28px; height: 28px; display: block; }
+
+    .empty {
+      grid-column: 1 / -1;
+      background: white;
+      border: 1px solid #e7e5e4;
+      border-radius: 24px;
+      padding: 26px;
+      text-align: center;
+      color: #57534e;
+      font-weight: 800;
+    }
+
+    @media (min-width: 981px) {
+      .hero-grid { grid-template-columns: 285px 1fr; min-height: 360px; }
+      .logo-card { width: 285px; height: 285px; }
+    }
+    @media (max-width: 1100px) {
+      .filter-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 850px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .logo-card { width: 170px; height: 170px; margin: 0 auto; }
+      .hero .lead { margin-left: auto; margin-right: auto; }
+      .actions { justify-content: center; }
+      .guide { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+      details.filter-box { width: 100%; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: auto 1fr auto; align-items: center; }
+    }
+    @media (max-width: 620px) {
+      .wrap { padding: 14px 12px 44px; }
+      .hero, .catalog, footer { border-radius: 28px; }
+      .hero { padding: 24px 18px; }
+      .hero-grid { gap: 18px; }
+      .logo-card { width: 150px; height: 150px; border-radius: 26px; margin: 0 auto; }
+      h1 { letter-spacing: -1.6px; }
+
+      .guide { gap: 12px; margin-top: 18px; }
+      .step {
+        display: grid; grid-template-columns: 44px 1fr; column-gap: 14px;
+        align-items: start; padding: 16px; border-radius: 22px;
+      }
+      .num { width: 42px; height: 42px; border-radius: 15px; margin-bottom: 0; grid-row: 1 / span 2; }
+      .step h3 { font-size: 16px; margin-top: 1px; }
+      .step p { margin-top: 5px; font-size: 13px; line-height: 1.45; }
+
+      .filter-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: auto 1fr auto; gap: 12px; }
+      .footer-logo { width: 64px; height: 64px; border-radius: 18px; }
+      footer h3 { font-size: 20px; }
+      footer p { font-size: 13px; line-height: 1.45; }
+      .tiktok-icon-link { width: 50px; height: 50px; border-radius: 16px; justify-self: end; }
+      .tiktok-icon { width: 22px; height: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="logo-card">
+          <img src="public/assets/logo.jpeg" alt="OK Outfit Kita Logo">
+        </div>
+        <div>
+          <div class="eyebrow">✦ Katalog Affiliate TikTok Shop</div>
+          <h1>Tampil Percaya Diri dengan <span class="gold">Outfit Pilihan OK Outfit Kita</span></h1>
+          <div class="lead">
+            Katalog fashion yang dibuat lebih elegan, mudah dicari, dan nyaman dibuka dari HP maupun laptop.
+            Temukan produk dari poster, lalu langsung menuju TikTok Shop melalui tombol produk.
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="#katalog">Jelajahi Katalog</a>
+            <a class="btn btn-soft" href="#cara">Cara Belanja</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cara" class="guide">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Buka Halaman Katalog</h3>
+        <p>Pembeli masuk dari link bio dan langsung melihat katalog produk yang rapi serta mudah dicari.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>Gunakan Pencarian & Filter</h3>
+        <p>Pembeli bisa mencari kode produk lalu membuka tombol filter untuk memilih harga, ukuran, warna, kategori, dan style.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Klik Produk</h3>
+        <p>Setelah menemukan produk, pembeli tinggal klik tombolnya untuk diarahkan ke link affiliate TikTok Shop milik kamu.</p>
+      </div>
+    </section>
+
+    <section id="katalog" class="catalog">
+      <div>
+        <p class="mini-title">Katalog Produk</p>
+        <h2>Kurasi Outfit Modern untuk Gaya Sehari-hari</h2>
+        <div class="catalog-desc">
+          Filter dibuat jadi satu tombol agar tampilan tetap rapi, dengan pilihan penting seperti kategori, harga, ukuran, warna, style, dan urutan produk.
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="searchbox">
+          <input id="searchInput" placeholder="Cari kode / nama produk..." />
+        </div>
+
+        <details class="filter-box">
+          <summary class="filter-summary">
+            <span class="summary-left"><span class="summary-icon">⚙</span> Filter Produk</span>
+            <span>⌄</span>
+          </summary>
+          <div class="filter-panel">
+            <div class="filter-grid">
+              <div class="field">
+                <label>Kategori</label>
+                <select id="filterCategory">
+                  <option value="">Semua Kategori</option>
+                  <option>Hijab</option>
+                  <option>NonHijab</option>
+                  <option>Casual</option>
+                  <option>Streetwear</option>
+                  <option>Korean Look</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Harga</label>
+                <select id="filterPrice">
+                  <option value="">Semua Harga</option>
+                  <option value="under100">Di bawah Rp100.000</option>
+                  <option value="100to150">Rp100.000 - Rp150.000</option>
+                  <option value="above150">Di atas Rp150.000</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Ukuran</label>
+                <select id="filterSize">
+                  <option value="">Semua Ukuran</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                  <option>All Size</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Warna</label>
+                <select id="filterColor">
+                  <option value="">Semua Warna</option>
+                  <option>Pink</option>
+                  <option>Cream</option>
+                  <option>Brown</option>
+                  <option>Black</option>
+                  <option>White</option>
+                  <option>Beige</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Style</label>
+                <select id="filterStyle">
+                  <option value="">Semua Style</option>
+                  <option>Daily Look</option>
+                  <option>Feminine</option>
+                  <option>Minimalist</option>
+                  <option>Formal</option>
+                  <option>Semi Formal</option>
+                  <option>Streetwear</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Urutkan</label>
+                <select id="sortBy">
+                  <option value="popular">Terpopuler</option>
+                  <option value="low">Harga Terendah</option>
+                  <option value="high">Harga Tertinggi</option>
+                  <option value="new">Terbaru</option>
+                </select>
+              </div>
+            </div>
+            <div class="filter-actions">
+              <button class="small-btn reset-btn" id="resetBtn">Reset</button>
+              <button class="small-btn apply-btn" id="applyBtn">Terapkan Filter</button>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid" id="productGrid"></div>
+    </section>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <img src="public/assets/logo.jpeg" alt="OK Outfit Kita Logo">
+        </div>
+        <div>
+          <h3>OK Outfit Kita</h3>
+          <p>Katalog fashion untuk mempermudah pencarian produk dari poster dan mengarahkan pembeli langsung ke TikTok Shop.</p>
+        </div>
+        <a class="tiktok-icon-link" href="https://tiktok.com/@outfit.kita.20" target="_blank" rel="noreferrer" aria-label="Buka TikTok outfit.kita.20">
+          <svg class="tiktok-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M36 10v28.5a8.5 8.5 0 1 1-6-8.12V23.5c-8.78.98-15.5 8.41-15.5 17.47C14.5 50.7 22.3 58.5 32 58.5S49.5 50.7 49.5 41V24.2c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H36Z" fill="#111"/>
+            <path d="M32.5 13v28a6.8 6.8 0 1 1-4.8-6.5V28c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3S44 49.98 44 42.1V19.7c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H32.5Z" fill="#25F4EE"/>
+            <path d="M35.8 10.4v28a6.8 6.8 0 1 1-4.8-6.5v4.48a3.1 3.1 0 1 0 1.95 2.9V13.95h10.1c1.44 4.29 5.34 7.15 9.62 7.55v4.2c-3.45-.07-6.66-1.17-9.3-3.05v22.4c0 7.88-6.42 14.3-14.3 14.3S14.75 52.93 14.75 45.05c0-7.2 5.32-13.18 12.3-14.1v-2.6c-8.75.95-15.45 8.36-15.45 17.4 0 9.7 7.8 17.5 17.5 17.5s17.5-7.8 17.5-17.5V28.95c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H35.8Z" fill="#FE2C55"/>
+            <path d="M33.4 13.95v25.33a3.1 3.1 0 1 1-2.4-3.02V28.8c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3s14.3-6.42 14.3-14.3V20.5c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H33.4Z" fill="#111"/>
+          </svg>
+        </a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
