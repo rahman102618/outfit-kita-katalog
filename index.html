@@ -204,7 +204,56 @@
       color: #57534e;
       font-weight: 800;
     }
-
+    .price-range {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .price-range input {
+      width: 100%;
+      border: 1px solid #e7e5e4;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+      padding: 13px 14px;
+      border-radius: 15px;
+      font-weight: 850;
+      outline: none;
+      box-shadow: 0 8px 18px rgba(120,113,108,.05);
+    }
+    
+    .price-range input:focus {
+      border-color: #f5d77e;
+      box-shadow: 0 0 0 4px rgba(251,191,36,.15);
+    }
+    
+    .price-separator {
+      font-weight: 1000;
+      color: #a8a29e;
+      font-size: 18px;
+    }
+    
+    .stack-field {
+      display: grid;
+      gap: 10px;
+    }
+    
+    .stack-field input {
+      width: 100%;
+      border: 1px solid #e7e5e4;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+      padding: 13px 14px;
+      border-radius: 15px;
+      font-weight: 850;
+      outline: none;
+      box-shadow: 0 8px 18px rgba(120,113,108,.05);
+    }
+    
+    .stack-field input:focus,
+    .stack-field select:focus {
+      border-color: #f5d77e;
+      box-shadow: 0 0 0 4px rgba(251,191,36,.15);
+    }
     @media (min-width: 981px) {
       .hero-grid { grid-template-columns: 285px 1fr; min-height: 360px; }
       .logo-card { width: 285px; height: 285px; }
@@ -249,6 +298,13 @@
       footer p { font-size: 13px; line-height: 1.45; }
       .tiktok-icon-link { width: 50px; height: 50px; border-radius: 16px; justify-self: end; }
       .tiktok-icon { width: 22px; height: 22px; }
+      .price-range {
+        grid-template-columns: 1fr;
+      }
+      
+      .price-separator {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -325,13 +381,11 @@
               </div>
               <div class="field">
                 <label>Harga</label>
-                <select id="filterPrice">
-                  <option value="">Semua Harga</option>
-                  <option value="under100">Di bawah Rp100.000</option>
-                  <option value="100to150">Rp100.000 - Rp150.000</option>
-                  <option value="150to350">Rp150.000 - Rp350.000</option>
-                  <option value="above350">Di atas Rp350.000</option>
-                </select>
+                <div class="price-range">
+                  <input id="filterPriceMin" type="text" placeholder="Rp MIN" inputmode="numeric" />
+                  <span class="price-separator">—</span>
+                  <input id="filterPriceMax" type="text" placeholder="Rp MAKS" inputmode="numeric" />
+                </div>
               </div>
               <div class="field">
                 <label>Ukuran</label>
@@ -357,16 +411,29 @@
                 </select>
               </div>
               <div class="field">
-                <label>Style</label>
-                <select id="filterStyle">
-                  <option value="">Semua Style</option>
-                  <option>Daily Look</option>
-                  <option>Feminine</option>
-                  <option>Minimalist</option>
-                  <option>Formal</option>
-                  <option>Semi Formal</option>
-                  <option>Streetwear</option>
-                </select>
+                <label>Warna</label>
+                <div class="stack-field">
+                  <select id="filterColor">
+                    <option value="">Semua Warna</option>
+                    <option>Pink</option>
+                    <option>Cream</option>
+                    <option>Brown</option>
+                    <option>Black</option>
+                    <option>White</option>
+                    <option>Beige</option>
+                    <option>Grey</option>
+                    <option>Blue</option>
+                    <option>Navy</option>
+                    <option>Maroon</option>
+                    <option>Olive</option>
+                    <option>Mocca</option>
+                    <option>Dusty Pink</option>
+                    <option>Khaki</option>
+                    <option>Mustard</option>
+                    <option>Lavender</option>
+                  </select>
+                  <input id="filterColorCustom" type="text" placeholder="Atau ketik warna sendiri..." />
+                </div>
               </div>
               <div class="field">
                 <label>Urutkan</label>
