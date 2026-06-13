@@ -1,58 +1,21 @@
 [
   {
-    "id": "SM042",
-    "type": "Hijab",
-    "name": "Oneset 3in1 Remaja Kekinian Simple",
-    "subtitle": "Top + Kulot + Hijab",
-    "price": "Rp73.023",
-    "size": "S - XL",
-    "colors": [
-      "Dusty Pink",
-      "Cream"
-    ],
-    "tags": [
-      "Daily Look"
-    ],
-    "badge": "Daily Look",
-    "desc": "Contoh tampilan produk. Nantinya data produk bisa ditambah lewat Termux.",
-    "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
-    "tiktokLink": "https://www.tiktok.com"
-  },
-  {
-    "id": "AY-06",
-    "type": "Hijab",
-    "name": "One Set Wanita Kekinian Pinky",
-    "subtitle": "Cardigan + Inner + Celana + Hijab",
-    "price": "Rp169.855",
-    "size": "S - XL",
-    "colors": [
-      "Pink",
-      "White"
-    ],
-    "tags": [
-      "Feminine Style"
-    ],
-    "badge": "Feminine Style",
-    "desc": "Desain tetap menarik saat dibuka di layar laptop maupun perangkat mobile.",
-    "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1200&auto=format&fit=crop",
-    "tiktokLink": "https://www.tiktok.com/"
-  },
-  {
     "id": "01",
-    "type": "NonHijab",
-    "name": "Security Check",
+    "type": "Hijab",
+    "name": "Gamis Tencel",
     "subtitle": "Fashion Set",
-    "price": "Cek harga di TikTok",
+    "price": "220.500",
     "size": "S - XL",
     "colors": [
-      "Cream"
+      "Soft mint",
+      "Grey Tencel Blue"
     ],
     "tags": [
-      "NonHijab"
+      "Hijab"
     ],
-    "badge": "NonHijab",
+    "badge": "Hijab",
     "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "image": "public/assets/01.JPG",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS92Etd4efE8x-iiJix/"
   },
   {
