@@ -255,14 +255,11 @@ def edit_produk():
         print(f"=== EDIT PRODUK: {product.get('id')} ===\n")
         print(f"1. Nama        : {product.get('name')}")
         print(f"2. Harga       : {product.get('price')}")
-        print(f"3. Size        : {product.get('size')}")
-        print(f"4. Kategori    : {product.get('type')}")
-        print(f"5. Subtitle    : {product.get('subtitle')}")
-        print(f"6. Warna       : {', '.join(product.get('colors', []))}")
-        print(f"7. Tags/Style  : {', '.join(product.get('tags', []))}")
-        print(f"8. Deskripsi   : {product.get('desc')}")
-        print(f"9. Link Gambar : {product.get('image')}")
-        print(f"10. Link Produk: {product.get('tiktokLink')}")
+    
+        print(f"3. Kategori    : {product.get('type')}")
+    
+        print(f"4. Link Gambar : {product.get('image')}")
+        print(f"5. Link Produk: {product.get('tiktokLink')}")
         print("0. Simpan dan kembali")
 
         choice = input("\nPilih yang ingin diedit: ").strip()
@@ -271,25 +268,16 @@ def edit_produk():
             product["name"] = input_default("Nama", product.get("name", ""))
         elif choice == "2":
             product["price"] = input_default("Harga", product.get("price", ""))
+        
         elif choice == "3":
-            product["size"] = input_default("Size", product.get("size", ""))
-        elif choice == "4":
             print("1. Hijab")
             print("2. NonHijab")
             c = input("Pilih kategori: ").strip()
             product["type"] = "Hijab" if c == "1" else "NonHijab"
-        elif choice == "5":
-            product["subtitle"] = input_default("Subtitle", product.get("subtitle", ""))
-        elif choice == "6":
-            product["colors"] = input_list_default("Warna", product.get("colors", []))
-        elif choice == "7":
-            product["tags"] = input_list_default("Tags/Style", product.get("tags", []))
-            product["badge"] = product["tags"][0] if product["tags"] else product.get("type", "Produk")
-        elif choice == "8":
-            product["desc"] = input_default("Deskripsi", product.get("desc", ""))
-        elif choice == "9":
+        
+        elif choice == "4":
             product["image"] = input_default("Link Gambar", product.get("image", ""))
-        elif choice == "10":
+        elif choice == "5":
             product["tiktokLink"] = input_default("Link Produk", product.get("tiktokLink", ""))
         elif choice == "0":
             products[idx] = product
