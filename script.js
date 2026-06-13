@@ -20,11 +20,7 @@ function productMatches(product) {
   const category = getValue("filterCategory");
   const minPrice = parsePrice(getValue("filterPriceMin"));
   const maxPrice = parsePrice(getValue("filterPriceMax"));
-  const size = getValue("filterSize");
-  const selectedColor = getValue("filterColor").trim().toLowerCase();
-  const customColor = getValue("filterColorCustom").trim().toLowerCase();
   const style = getValue("filterStyle");
-
   const haystack = [
     product.id, product.name, product.subtitle, product.desc, product.type,
     ...(product.tags || []), ...(product.colors || [])
@@ -42,17 +38,7 @@ function productMatches(product) {
 
   if (minPrice && p < minPrice) return false;
   if (maxPrice && p > maxPrice) return false;
-
-  if (size && !String(product.size || "").toLowerCase().includes(size.toLowerCase())) return false;
-
-  const colorQueries = [selectedColor, customColor].filter(Boolean);
-
-  if (colorQueries.length) {
-    const colors = (product.colors || []).join(" ").toLowerCase();
-    const matchColor = colorQueries.some(c => colors.includes(c));
-    if (!matchColor) return false;
-  }
-
+  
   if (style) {
     const tags = (product.tags || []).join(" ").toLowerCase();
     if (!tags.includes(style.toLowerCase())) return false;
@@ -132,8 +118,7 @@ async function loadProducts() {
 document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
 
-  ["searchInput", "filterCategory", "filterPriceMin", "filterPriceMax", "filterSize", "filterColor", "filterColorCustom", "filterStyle", "sortBy"].forEach((id) => {    const el = document.getElementById(id);
-    if (!el) return;
+ ["searchInput", "filterCategory", "filterPriceMin", "filterPriceMax", "filterStyle", "sortBy"].forEach((id) => {    if (!el) return;
     el.addEventListener("input", renderProducts);
     el.addEventListener("change", renderProducts);
   });
@@ -150,11 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetBtn = document.getElementById("resetBtn");
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      ["filterCategory", "filterPriceMin", "filterPriceMax", "filterSize", "filterColor", "filterColorCustom", "filterStyle"].forEach(id => {        const el = document.getElementById(id);
-        if (el) el.value = "";
+     ["filterCategory", "filterPriceMin", "filterPriceMax", "filterStyle"].forEach(id => {
+       if (el) el.value = "";
       });
       const sort = document.getElementById("sortBy");
-      if (sort) sort.value = "popular";
+      if (sort) sort.value = "new";
       renderProducts();
     });
   }
