@@ -83,8 +83,7 @@ function renderProducts() {
           <div class="chips">
           <span class="chip">${escapeHtml(p.type || "Produk")}</span>
         </div>
-        <h3>${escapeHtml(p.name || "Produk Outfit")}</h3>
-        <div class="price-text">${escapeHtml(p.price || "Cek harga")}</div>
+        <h3>${escapeHtml(p.name || "Produk Outfit")}</h3/>
         <a class="buy" href="${escapeAttr(link)}" target="_blank" rel="noreferrer">Lihat Produk ↗</a>        </div>
       </article>
     `;
