@@ -21,9 +21,9 @@
   {
     "id": "02",
     "type": "NonHijab",
-    "name": "Security Check",
-    "subtitle": "Fashion Set",
-    "price": "Cek harga di TikTok",
+    "name": "Tas wanita Les Catino Spanisa Mini Satchel",
+    "subtitle": "Tas",
+    "price": "149.000",
     "size": "S - XL",
     "colors": [
       "Cream"
@@ -33,25 +33,25 @@
     ],
     "badge": "NonHijab",
     "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "image": "public/assets/02.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS92En1oDtkUM-wbkOk/"
   },
   {
     "id": "03",
-    "type": "NonHijab",
-    "name": "Security Check",
+    "type": "Hijab",
+    "name": "Pashmina Gradia Motif Printing Premium Hijab Syall Material Ceruty Babydoll",
     "subtitle": "Fashion Set",
-    "price": "Cek harga di TikTok",
+    "price": "44.900",
     "size": "S - XL",
     "colors": [
       "Cream"
     ],
     "tags": [
-      "NonHijab"
+      "Hijabb"
     ],
-    "badge": "NonHijab",
+    "badge": "Hijabb",
     "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "image": "public/assets/03.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS92En23V3EQa-3knzw/"
   },
   {
