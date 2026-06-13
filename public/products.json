@@ -182,28 +182,28 @@
   },
   {
     "id": "11",
-    "type": "NonHijab",
-    "name": "Security Check",
+    "type": "Hijab",
+    "name": "hijab pashmina viscose rayon tencel original free( pouch)",
     "subtitle": "Fashion Set",
-    "price": "Cek harga di TikTok",
+    "price": "40.800",
     "size": "S - XL",
     "colors": [
       "Cream"
     ],
     "tags": [
-      "NonHijab"
+      "Hijab"
     ],
-    "badge": "NonHijab",
+    "badge": "Hijab",
     "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "image": "public/assets/11.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS92EnnHaP27L-PPSke/"
   },
   {
     "id": "12",
     "type": "NonHijab",
-    "name": "Security Check",
-    "subtitle": "Fashion Set",
-    "price": "Cek harga di TikTok",
+    "name": "Tas Paris Classic Tas Wanita Import Fashion Handbag",
+    "subtitle": "tas",
+    "price": "300.000",
     "size": "S - XL",
     "colors": [
       "Cream"
@@ -213,7 +213,7 @@
     ],
     "badge": "NonHijab",
     "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "image": "public/assets/12.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS92E7ftV8uRT-0kJlq/"
   }
 ]
