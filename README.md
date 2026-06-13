@@ -1,4 +1,4 @@
-# OK Outfit Kita - Web Katalog Affiliate
+#Outfit Kita - Web Katalog Affiliate
 
 File ini sudah berisi:
 - `index.html` = tampilan web katalog
