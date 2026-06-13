@@ -91,16 +91,15 @@ function renderProducts() {
         <div class="photo">
           <img src="${escapeAttr(image)}" alt="${escapeAttr(p.name || p.id)}" onerror="this.src='https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'">
           <div class="code">No. ${escapeHtml(p.id || "-")}</div>
-          <div class="size">Size: ${escapeHtml(p.size || "Cek produk")}</div>
           <div class="price">${escapeHtml(p.price || "Cek harga")}</div>
         </div>
         <div class="content">
-          <div class="chips">${tags || `<span class="chip">${escapeHtml(p.type || "Produk")}</span>`}</div>
-          <h3>${escapeHtml(p.name || "Produk Outfit")}</h3>
-          <div class="sub">${escapeHtml(p.subtitle || "Fashion Set")}</div>
-          <div class="desc">${escapeHtml(p.desc || "Klik tombol untuk melihat produk di TikTok Shop.")}</div>
-          <a class="buy" href="${escapeAttr(link)}" target="_blank" rel="noreferrer">Lihat Produk ↗</a>
+          <div class="chips">
+          <span class="chip">${escapeHtml(p.type || "Produk")}</span>
         </div>
+        <h3>${escapeHtml(p.name || "Produk Outfit")}</h3>
+        <div class="price-text">${escapeHtml(p.price || "Cek harga")}</div>
+        <a class="buy" href="${escapeAttr(link)}" target="_blank" rel="noreferrer">Lihat Produk ↗</a>        </div>
       </article>
     `;
   }).join("");
