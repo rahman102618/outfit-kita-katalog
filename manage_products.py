@@ -192,13 +192,9 @@ def tambah_produk():
         "id": product_id,
         "type": product_type,
         "name": title,
-        "subtitle": subtitle,
+    
         "price": price,
-        "size": "S - XL",
-        "colors": colors,
-        "tags": tags,
-        "badge": tags[0] if tags else product_type,
-        "desc": desc,
+        
         "image": image,
         "tiktokLink": link
     }
