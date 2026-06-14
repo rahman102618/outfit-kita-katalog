@@ -218,50 +218,50 @@
   },
   {
     "id": "13",
-    "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "type": "Hijab",
+    "name": "Asaya Kemeja kasual tambal sulam motif bunga bergaris",
+    "price": "80.000",
+    "image": "public/assets/13.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSjbkhCtS3-YzVQM/"
   },
   {
     "id": "14",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Biru tua baggy jeans wide leg loose highwaist jeanskulot kekinian korean style",
+    "price": "64.999",
+    "image": "public/assets/14.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSjhfyjR14-a3ogH/"
   },
   {
     "id": "15",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Sevine Elora All Varian Slingbag Selempang Sekolah Kuliah Tas Cewek Wanita",
+    "price": "52.704",
+    "image": "public/assets/15.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSj72VFsNK-KBZVV/"
   },
   {
     "id": "16",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Ruka Sweater knit - rajut atasan wanita - Knit Cable Tali Pita",
+    "price": "69.500",
+    "image": "public/assets/16.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jS65RVe36w-ZGJZ5/"
   },
   {
     "id": "17",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Everyday Pants Stripe Bangkok Celana Panjang Wanita Baggy Loose Basic",
+    "price": "47.500",
+    "image": "public/assets/17.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jS6bSmDTTp-wsOHc/"
   },
   {
     "id": "18",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Slingbag Selempang Sekolah Kuliah Tas Cewek Wanita",
+    "price": "52.900",
+    "image": "public/assets/18.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMdVNTKQk-1GBDA/"
   },
   {
@@ -275,17 +275,17 @@
   {
     "id": "20",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Celana Stripe Flowy Kulot Rayon Viscose Wanita Motif Salur",
+    "price": "49.999",
+    "image": "public/assets/20.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMt5Y2fB3-3baBG/"
   },
   {
     "id": "21",
     "type": "NonHijab",
-    "name": "Security Check",
-    "price": "Cek harga di TikTok",
-    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop",
+    "name": "Sling Bag Bagcharm - Tas Tahan Air Tas Selempang Cewek Wanita Resleting Gantungan Pita Tas",
+    "price": "52.400",
+    "image": "public/assets/21.jpg",
     "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMKk5SBun-YGjGu/"
   }
 ]
