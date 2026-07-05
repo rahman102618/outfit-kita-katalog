@@ -6041,25 +6041,5 @@
     "colors": [],
     "badge": "Sepatu",
     "desc": ""
-  },
-  {
-    "id": "223",
-    "name": "Produk 223",
-    "price": "Rp89.500",
-    "category": "Atasan",
-    "type": "Atasan",
-    "image": "public/assets/223.jpg",
-    "link": "https://vt.tokopedia.com/t/ZS96bc68nowdf-VTC1j/",
-    "tiktokLink": "https://vt.tokopedia.com/t/ZS96bc68nowdf-VTC1j/",
-    "platform": "Tokopedia",
-    "tags": [
-      "Atasan",
-      "Tokopedia"
-    ],
-    "subtitle": "",
-    "size": "",
-    "colors": [],
-    "badge": "Atasan",
-    "desc": ""
   }
 ]
