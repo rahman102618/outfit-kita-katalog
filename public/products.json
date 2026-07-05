@@ -6043,57 +6043,6 @@
     "desc": ""
   },
   {
-    "id": "222",
-    "name": "Produk 222",
-    "price": "Rp65.000",
-    "category": "Atasan",
-    "type": "Atasan",
-    "image": "public/assets/222.jpg",
-    "link": "https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/",
-    "tiktokLink": "https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/",
-    "platform": "Tokopedia",
-    "tags": [
-      "Atasan",
-      "Tokopedia"
-    ],
-    "subtitle": "",
-    "size": "",
-    "colors": [],
-    "badge": "Atasan",
-    "desc": "",
-    "_links": [
-      "https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/"
-    ],
-    "_aliases": [
-      "222"
-    ],
-    "_allIds": [
-      "222"
-    ],
-    "searchIds": [
-      "222"
-    ],
-    "_variants": [
-      {
-        "id": "222",
-        "name": "Produk 222",
-        "price": "Rp65.000",
-        "category": "Atasan",
-        "type": "Atasan",
-        "badge": "Atasan",
-        "image": "public/assets/222.jpg",
-        "link": "https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/",
-        "tiktokLink": "https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/",
-        "platform": "Tokopedia",
-        "tags": [
-          "Atasan",
-          "Tokopedia"
-        ],
-        "colors": []
-      }
-    ]
-  },
-  {
     "id": "223",
     "name": "Produk 223",
     "price": "Rp89.500",
