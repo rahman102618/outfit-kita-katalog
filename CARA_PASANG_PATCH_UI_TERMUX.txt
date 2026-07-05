@@ -1,0 +1,31 @@
+PATCH UI TERMUX OUTFIT KITA
+
+Isi patch ini hanya mengganti file:
+- manage_products.py
+
+Data produk tidak ikut diganti.
+File public/products.json, public/assets, index.html, script.js, dan admin_app.py tidak disentuh.
+
+CARA PASANG DI TERMUX:
+
+1. Masuk ke folder project lama:
+   cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+
+2. Backup file lama:
+   cp manage_products.py manage_products_backup_sebelum_ui.py
+
+3. Ekstrak patch dari folder Download:
+   unzip -o /storage/emulated/0/Download/outfit-kita-termux-ui-clean-patch.zip -d .
+
+4. Jalankan:
+   python manage_products.py
+
+YANG DIRUBAH:
+- Warna dibuat lebih kalem.
+- Angka menu tidak warna-warni.
+- Tulisan tambahan seperti +, edit, list, git, api, cat, exit dihapus.
+- Header tidak menampilkan status Git yang merah/ramai.
+- Tabel produk lebih rapi.
+- Detail produk lebih rapi.
+- Menu edit dan kategori lebih bersih.
+

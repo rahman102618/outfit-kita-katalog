@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#111111"/>
+    <stop offset="55%" stop-color="#2a2112"/>
+    <stop offset="100%" stop-color="#f7c948"/>
+  </linearGradient>
+</defs>
+<rect width="900" height="900" rx="70" fill="url(#bg)"/>
+<circle cx="450" cy="330" r="130" fill="rgba(255,255,255,0.10)"/>
+<path d="M320 345h260v190H320z" fill="none" stroke="#ffffff" stroke-width="28" rx="28"/>
+<path d="M365 345c0-70 37-115 85-115s85 45 85 115" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+<text x="450" y="625" text-anchor="middle" fill="#ffffff" font-size="58" font-family="Arial" font-weight="800">OK OUTFIT KITA</text>
+<text x="450" y="688" text-anchor="middle" fill="#ffe08a" font-size="34" font-family="Arial" font-weight="700">Gambar produk belum tersedia</text>
+</svg>

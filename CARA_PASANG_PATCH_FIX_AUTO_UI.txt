@@ -1,0 +1,31 @@
+PATCH FIX AUTO + UI TERMUX
+
+Isi patch:
+- manage_products.py saja
+
+Yang diperbaiki:
+1. Menu nomor 5 Dashboard admin web dihapus.
+2. Menu kembali jadi:
+   1 Tambah produk otomatis
+   2 Edit produk manual
+   3 Lihat daftar produk
+   4 Hapus produk
+   5 Preview katalog
+   6 Sinkron GitHub
+   7 Setup Shopee API
+   8 Kelola kategori
+   0 Keluar
+3. Tabel kategori dibuat rapi di Termux.
+4. Jika nama produk gagal terbaca, kategori tidak lagi otomatis jadi angka produk seperti 222.
+5. Kalau nama otomatis gagal, program meminta nama manual supaya kategori lebih aman.
+6. Pesan upload otomatis diperjelas jika folder bukan repo Git.
+
+Cara pasang:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_fix_auto_ui.py
+unzip -o /storage/emulated/0/Download/outfit-kita-fix-auto-ui-patch.zip -d .
+python manage_products.py
+
+Catatan penting:
+Upload otomatis hanya bisa jalan kalau folder project punya folder .git.
+Kalau di header/status muncul Bukan Repo Git, berarti kamu sedang menjalankan project dari folder hasil ekstrak biasa, bukan folder repo GitHub lama.

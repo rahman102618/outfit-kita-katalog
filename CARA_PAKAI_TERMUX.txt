@@ -1,0 +1,37 @@
+CARA PAKAI DI TERMUX - VERSI WARNA
+
+1. Beri izin storage:
+termux-setup-storage
+
+2. Pastikan unzip sudah ada:
+pkg install unzip -y
+
+3. Masuk ke folder Download:
+cd /storage/emulated/0/Download
+
+4. Ekstrak ZIP versi baru:
+unzip -o outfit-kita-katalog-termux-color-ui.zip -d /storage/emulated/0/Termux/
+
+5. Masuk folder project:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+
+6. Install kebutuhan:
+bash setup_termux.sh
+
+7. Jalankan manager Termux berwarna:
+python manage_products.py
+
+8. Jalankan dashboard admin web:
+python admin_app.py
+
+9. Buka browser:
+http://127.0.0.1:5000/admin
+
+Katalog pembeli:
+http://127.0.0.1:5000/
+
+Catatan:
+- Menu Termux sekarang tetap berwarna walaupun library rich belum aktif.
+- Jika mau tampilan terminal lebih maksimal, tetap jalankan bash setup_termux.sh.
+- Termux harus tetap terbuka selama server berjalan.
+- Tekan CTRL+C untuk menghentikan server.

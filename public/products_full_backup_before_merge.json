@@ -1,0 +1,1104 @@
+[
+  {
+    "id": "01",
+    "type": "Gamis",
+    "name": "Gamis Tencel",
+    "subtitle": "Fashion Set",
+    "price": "220.500",
+    "size": "S - XL",
+    "colors": [
+      "Soft mint",
+      "Grey Tencel Blue"
+    ],
+    "tags": [
+      "Gamis"
+    ],
+    "badge": "Gamis",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/01.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92Etd4efE8x-iiJix/",
+    "category": "Gamis",
+    "link": "https://vt.tokopedia.com/t/ZS92Etd4efE8x-iiJix/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B01",
+    "name": "Lavie Pant Cullote Palazzo Highwaist Celana Panjang Wanita Celana Kantor Formal Casual Trendy",
+    "price": "Rp93.835",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/B01.jpg",
+    "link": "https://s.shopee.co.id/5fmYhMGTNs?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/5fmYhMGTNs?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Bawahan",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "02",
+    "type": "Tas",
+    "name": "Tas wanita Les Catino Spanisa Mini Satchel",
+    "subtitle": "Tas",
+    "price": "149.000",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/02.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92En1oDtkUM-wbkOk/",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS92En1oDtkUM-wbkOk/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B02",
+    "name": "Outfitted Vest Set Kemeja Wanita Kekinian Rompi Atasan Blouse Korean Style Elegan Casual Outer",
+    "price": "Rp139.900",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/B02.jpg",
+    "link": "https://s.shopee.co.id/qhIaJDSt4?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/qhIaJDSt4?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Atasan",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "03",
+    "type": "Hijab",
+    "name": "Pashmina Gradia Motif Printing Premium Hijab Syall Material Ceruty Babydoll",
+    "subtitle": "Fashion Set",
+    "price": "44.900",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Hijab"
+    ],
+    "badge": "Hijab",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/03.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92En23V3EQa-3knzw/",
+    "category": "Hijab",
+    "link": "https://vt.tokopedia.com/t/ZS92En23V3EQa-3knzw/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B03",
+    "name": "LAVIN JE Tas Fashion Bag Petit Charm Tas Wanita Desain Manis Tas Tangan Wanita Model Trendy ...",
+    "price": "Rp198.200",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/B03.jpg",
+    "link": "https://s.shopee.co.id/9fIh6d4HhA?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/9fIh6d4HhA?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Atasan",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "04",
+    "type": "Gamis",
+    "name": "MECCA ABAYA REMAJA TERBARU 2026 SIMPLE ELEGANT CERUTY BABYDOLL MIX MUTIAR",
+    "subtitle": "Fashion Set",
+    "price": "144.000",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Gamis"
+    ],
+    "badge": "Gamis",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/04.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EWh3Gkfv6-r9vKJ/",
+    "category": "Gamis",
+    "link": "https://vt.tokopedia.com/t/ZS92EWh3Gkfv6-r9vKJ/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B04",
+    "name": "ETERNITE Submar 40oz [30hours Cold 24hours Hot] Insulated Water Bottle with Stainless Steel 304",
+    "price": "Rp199.000",
+    "category": "Tumbler",
+    "type": "Tumbler",
+    "image": "public/assets/B04.jpg",
+    "link": "https://s.shopee.co.id/8pjbwqCrS8?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/8pjbwqCrS8?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Tumbler",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Tumbler",
+    "desc": ""
+  },
+  {
+    "id": "05",
+    "type": "Hijab",
+    "name": "hijab pashmina viscose rayon tencel original free( pouch)",
+    "subtitle": "Hijab + Pashmina",
+    "price": "Rp43.313",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Hijab"
+    ],
+    "badge": "Hijab",
+    "desc": "Buy hijab pashmina viscose rayon tencel original free( pouch) on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/e6be55a9c4424a4f9bf5c2b0d7e4a296~tplv-aphluv4xwc-resize-webp:260:260.webp?dr=15582&t=555f072d&ps=933b5bde&shp=7745054a&shcp=9b759fb9&idc=my2&from=2001012042",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EnnHaP27L-PPSke/",
+    "category": "Hijab",
+    "link": "https://vt.tokopedia.com/t/ZS92EnnHaP27L-PPSke/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B05",
+    "name": "HydroFresh Termos Tumbler Premium 900ML Botol Air Minum Sedotan Handle Portable Tahan Panas ...",
+    "price": "Rp54.950",
+    "category": "Tumbler",
+    "type": "Tumbler",
+    "image": "public/assets/B05.jpg",
+    "link": "https://s.shopee.co.id/2g8ybLSU31?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/2g8ybLSU31?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Tumbler",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Tumbler",
+    "desc": ""
+  },
+  {
+    "id": "06",
+    "type": "Tas",
+    "name": "G&Z Tas Selempang Wanita Kulit PU Syal Pita Three Angel Modis Mewah Kekinian Vintage Fashion 2026",
+    "subtitle": "Fashion Set",
+    "price": "Rp257.207",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "desc": "Buy G&Z Tas Selempang Wanita Kulit PU Syal Pita Three Angel Modis Mewah Kekinian Vintage Fashion 2026 on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/0fb554b48e784ee78262cc29a4f99702~tplv-aphluv4xwc-resize-webp:260:260.webp?dr=15582&t=555f072d&ps=933b5bde&shp=7745054a&shcp=9b759fb9&idc=my2&from=2001012042",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EW4YA31ba-gizqr/",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS92EW4YA31ba-gizqr/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "B06",
+    "name": "My Aksa Kain Batik Katun Primis Mahatma Claressa",
+    "price": "Rp95.000",
+    "category": "Kain Batik",
+    "type": "Kain Batik",
+    "image": "public/assets/B06.jpg",
+    "link": "https://s.shopee.co.id/5fmaHZVx8N?share_channel_code=1",
+    "tiktokLink": "https://s.shopee.co.id/5fmaHZVx8N?share_channel_code=1",
+    "platform": "Shopee",
+    "tags": [
+      "Kain Batik",
+      "Shopee"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Kain Batik",
+    "desc": ""
+  },
+  {
+    "id": "07",
+    "type": "Gamis",
+    "name": "Abaya Yasmin Arabian Turkey Terbaru/Gamis Bahan Sabrina Anti Uv Uk M L XL/Dress Remaja Fashion Muslim Wanita Baju Kondangan 2026",
+    "subtitle": "Fashion Set",
+    "price": "Rp154.837",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Gamis"
+    ],
+    "badge": "Gamis",
+    "desc": "Buy Abaya Yasmin Arabian Turkey Terbaru/Gamis Bahan Sabrina Anti Uv Uk M L XL/Dress Remaja Fashion Muslim Wanita Baju Kondangan 2026 on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/d1bdb3838d9943ff9ad977709bbce431~tplv-aphluv4xwc-resize-webp:260:260.webp?dr=15582&t=555f072d&ps=933b5bde&shp=7745054a&shcp=9b759fb9&idc=my2&from=2001012042",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EhW2nqBVx-VbjUW/",
+    "category": "Gamis",
+    "link": "https://vt.tokopedia.com/t/ZS92EhW2nqBVx-VbjUW/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "08",
+    "type": "Hijab",
+    "name": "Pashmina+Ceruty+Premium+|+Pashmina+Printing+Motif+Cantik+ukuran+180x75+cm+|+Kerudung+Jilbab+Wanita",
+    "subtitle": "Pashmina",
+    "price": "Rp43.580",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Hijab"
+    ],
+    "badge": "Hijab",
+    "desc": "Buy Pashmina+Ceruty+Premium+|+Pashmina+Printing+Motif+Cantik+ukuran+180x75+cm+|+Kerudung+Jilbab+Wanita on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-general.tiktokcdn.com/tos-alisg-i-aphluv4xwc-sg/9766f425d624449db74111a3f16bd13c~tplv-aphluv4xwc-resize-jpeg:800:800.jpeg?dr=15584&t=555f072d&ps=933b5bde&shp=2408c917&shcp=32ce9e9e&idc=my2&from=604555543",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EBJYvt2xB-bOhJv/",
+    "category": "Hijab",
+    "link": "https://vt.tokopedia.com/t/ZS92EBJYvt2xB-bOhJv/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "09",
+    "type": "Tas",
+    "name": "【NAD】CORALDAISY+Tas+Wanita+2026+Tas+Selempang+Wanita+Shoulder+Bag+elegan+sling+bag+Rantai+bag+branded+5031032",
+    "subtitle": "Fashion Set",
+    "price": "Rp171.216",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "desc": "Buy 【NAD】CORALDAISY+Tas+Wanita+2026+Tas+Selempang+Wanita+Shoulder+Bag+elegan+sling+bag+Rantai+bag+branded+5031032 on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-general.tiktokcdn.com/tos-alisg-i-aphluv4xwc-sg/2dddf9777a23409a9f253a840f4c317a~tplv-aphluv4xwc-resize-jpeg:800:800.jpeg?dr=15584&t=555f072d&ps=933b5bde&shp=2408c917&shcp=32ce9e9e&idc=my2&from=604555543",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92ESAkRNv1o-z6YKy/",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS92ESAkRNv1o-z6YKy/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "10",
+    "type": "Gamis",
+    "name": "Kaluna Dress Gamis Couple Mom & Kids Gamis Wanita Dewasa dan Anak Baju Couple Lebaran Kekinian Lucu Korean Style Bahan Katun Adem - DI JUAL TERPISAH",
+    "subtitle": "Fashion Set",
+    "price": "Rp278.947",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Gamis"
+    ],
+    "badge": "Gamis",
+    "desc": "Buy Kaluna Dress Gamis Couple Mom & Kids Gamis Wanita Dewasa dan Anak Baju Couple Lebaran Kekinian Lucu Korean Style Bahan Katun Adem - DI JUAL TERPISAH on TikTok Shop. Discover great prices on and get free shipping on eligible items. Shop now for exclusive deals!",
+    "image": "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/fac528546584467ea93e5ccf8835166c~tplv-aphluv4xwc-resize-webp:260:260.webp?dr=15582&t=555f072d&ps=933b5bde&shp=7745054a&shcp=9b759fb9&idc=my2&from=2001012042",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92E7FtHRf66-QpWz6/",
+    "category": "Gamis",
+    "link": "https://vt.tokopedia.com/t/ZS92E7FtHRf66-QpWz6/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "11",
+    "type": "Hijab",
+    "name": "hijab pashmina viscose rayon tencel original free( pouch)",
+    "subtitle": "Fashion Set",
+    "price": "40.800",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Hijab"
+    ],
+    "badge": "Hijab",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/11.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92EnnHaP27L-PPSke/",
+    "category": "Hijab",
+    "link": "https://vt.tokopedia.com/t/ZS92EnnHaP27L-PPSke/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "12",
+    "type": "Tas",
+    "name": "Tas Paris Classic Tas Wanita Import Fashion Handbag",
+    "subtitle": "tas",
+    "price": "300.000",
+    "size": "S - XL",
+    "colors": [
+      "Cream"
+    ],
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "desc": "Security Check cocok untuk daily outfit, hangout, kuliah, atau kegiatan santai.",
+    "image": "public/assets/12.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS92E7ftV8uRT-0kJlq/",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS92E7ftV8uRT-0kJlq/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "13",
+    "type": "Atasan",
+    "name": "Asaya Kemeja kasual tambal sulam motif bunga bergaris",
+    "price": "80.000",
+    "image": "public/assets/13.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSjbkhCtS3-YzVQM/",
+    "tags": [
+      "Atasan"
+    ],
+    "badge": "Atasan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Atasan",
+    "link": "https://vt.tokopedia.com/t/ZS9jSjbkhCtS3-YzVQM/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "14",
+    "type": "Bawahan",
+    "name": "Biru tua baggy jeans wide leg loose highwaist jeanskulot kekinian korean style",
+    "price": "64.999",
+    "image": "public/assets/14.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSjhfyjR14-a3ogH/",
+    "tags": [
+      "Bawahan"
+    ],
+    "badge": "Bawahan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Bawahan",
+    "link": "https://vt.tokopedia.com/t/ZS9jSjhfyjR14-a3ogH/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "15",
+    "type": "Tas",
+    "name": "Sevine Elora All Varian Slingbag Selempang Sekolah Kuliah Tas Cewek Wanita",
+    "price": "52.704",
+    "image": "public/assets/15.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSj72VFsNK-KBZVV/",
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS9jSj72VFsNK-KBZVV/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "16",
+    "type": "Atasan",
+    "name": "Ruka Sweater knit - rajut atasan wanita - Knit Cable Tali Pita",
+    "price": "69.500",
+    "image": "public/assets/16.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jS65RVe36w-ZGJZ5/",
+    "tags": [
+      "Atasan"
+    ],
+    "badge": "Atasan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Atasan",
+    "link": "https://vt.tokopedia.com/t/ZS9jS65RVe36w-ZGJZ5/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "17",
+    "type": "Bawahan",
+    "name": "Everyday Pants Stripe Bangkok Celana Panjang Wanita Baggy Loose Basic",
+    "price": "47.500",
+    "image": "public/assets/17.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jS6bSmDTTp-wsOHc/",
+    "tags": [
+      "Bawahan"
+    ],
+    "badge": "Bawahan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Bawahan",
+    "link": "https://vt.tokopedia.com/t/ZS9jS6bSmDTTp-wsOHc/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "18",
+    "type": "Tas",
+    "name": "Slingbag Selempang Sekolah Kuliah Tas Cewek Wanita",
+    "price": "52.900",
+    "image": "public/assets/18.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMdVNTKQk-1GBDA/",
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS9jSMdVNTKQk-1GBDA/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "19",
+    "type": "Atasan",
+    "name": "Cardigan crop top rajut hornet lengan panjang balon Cardigan Lizzie kancing tangan kerut kardigan Jessy 2025",
+    "price": "Rp40.940",
+    "image": "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/d9f8c3f7fa1047bf93e0c3ce3adca8cb~tplv-aphluv4xwc-resize-webp:260:260.webp?dr=15582&t=555f072d&ps=933b5bde&shp=7745054a&shcp=9b759fb9&idc=my2&from=2001012042",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMkg9UNqc-CsH8v/",
+    "tags": [
+      "Atasan"
+    ],
+    "badge": "Atasan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Atasan",
+    "link": "https://vt.tokopedia.com/t/ZS9jSMkg9UNqc-CsH8v/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "20",
+    "type": "Bawahan",
+    "name": "Celana Stripe Flowy Kulot Rayon Viscose Wanita Motif Salur",
+    "price": "49.999",
+    "image": "public/assets/20.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMt5Y2fB3-3baBG/",
+    "tags": [
+      "Bawahan"
+    ],
+    "badge": "Bawahan",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Bawahan",
+    "link": "https://vt.tokopedia.com/t/ZS9jSMt5Y2fB3-3baBG/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "21",
+    "type": "Tas",
+    "name": "Sling Bag Bagcharm - Tas Tahan Air Tas Selempang Cewek Wanita Resleting Gantungan Pita Tas",
+    "price": "52.400",
+    "image": "public/assets/21.jpg",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jSMKk5SBun-YGjGu/",
+    "tags": [
+      "Tas"
+    ],
+    "badge": "Tas",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "desc": "",
+    "category": "Tas",
+    "link": "https://vt.tokopedia.com/t/ZS9jSMKk5SBun-YGjGu/",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "22",
+    "name": "CHICMORE Atasan Dua Potong Palsu Pakaian Wanita Gaya Kekinian Baru",
+    "price": "Rp139.000",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-22.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jvpdeCnvVE-9K3Zq/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jvpdeCnvVE-9K3Zq/",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "tags": [
+      "Atasan"
+    ],
+    "badge": "Atasan",
+    "desc": "",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "23",
+    "name": "Viona pants celana panjang wanita semi woll premium bahan adem Loose",
+    "price": "64.352",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-23.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9j3FY7H2cDX-aspnM/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9j3FY7H2cDX-aspnM/",
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "tags": [
+      "Bawahan"
+    ],
+    "badge": "Bawahan",
+    "desc": "",
+    "platform": "Tokopedia"
+  },
+  {
+    "id": "33",
+    "name": "Kemeja wanita / kemeja salur / Atasan stripe korean style",
+    "price": "Rp69.900",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-33.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwhaYVSYuJ-tEc7c/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwhaYVSYuJ-tEc7c/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "34",
+    "name": "ORO PANTS - Loose Pants Trouser Wanita - Celana Kulot Wanita - Celana Anti Kusut - Celana Kerja Wanita",
+    "price": "Rp65.000",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-34.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwhEcHdEES-jlbdv/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwhEcHdEES-jlbdv/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "35",
+    "name": "PLAIN SQUARE SASMITA HIJAB AROMATIC WITH POUCH PACKAGE",
+    "price": "Rp26.500",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-35.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwkF43k12k-BDalp/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwkF43k12k-BDalp/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "36",
+    "name": "Hijab Segiempat Paris Jadul Premium, Hijab Paris Jadul, Paris Jadul Original",
+    "price": "Rp20.945",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-36.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwks1Vuh1G-hJM7H/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwks1Vuh1G-hJM7H/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "37",
+    "name": "gangnam blouse / kemeja polos shakila twill tali dasi lengan balon Baju Atasan Wanita Kancin...",
+    "price": "Rp52.905",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-37.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwknwrA5Lh-21sGT/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwknwrA5Lh-21sGT/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "38",
+    "name": "Celana Loose Pants Highwaist PREMIUM Double Kancing",
+    "price": "Rp34.950",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-38.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwk7c6jPbE-hC6Yd/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwk7c6jPbE-hC6Yd/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "39",
+    "name": "Hijab Segiempat Paris Jadul Premium, Hijab Paris Jadul, Paris Jadul Original",
+    "price": "Rp20.945",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-39.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "40",
+    "name": "4.9/DB628/ Kemeja Wanita Korea Desain Sabuk Pinggang Motif Garis V-Neck Lengan Panjang Premi...",
+    "price": "Rp46.000",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-40.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwBm8bwvSH-YsPpU/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwBm8bwvSH-YsPpU/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "41",
+    "name": "Yacoo Celana Jeans Wanita Baggy Oversize Loose Highwaist Biru Tua Wide Leg Korean Look TY180",
+    "price": "Rp142.000",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-41.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwBQgMjbWd-aydrJ/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwBQgMjbWd-aydrJ/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "42",
+    "name": "Hijab Segiempat Paris Jadul Premium, Hijab Paris Jadul, Paris Jadul Original",
+    "price": "Rp20.945",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-42.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwks1Vuh1G-hJM7H/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwks1Vuh1G-hJM7H/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "43",
+    "name": "FUGUI Atasan Wanita Vest Rajut Kerah Salur 8K199 Top Vest Soft Knit Mix Stripe dengan Desain...",
+    "price": "Rp169.500",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-43.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jw5LvCHWtr-Dcnqk/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jw5LvCHWtr-Dcnqk/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "44",
+    "name": "Celana Loose Pants Highwaist PREMIUM Double Kancing",
+    "price": "Rp34.950",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-44.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwk7c6jPbE-hC6Yd/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwk7c6jPbE-hC6Yd/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "45",
+    "name": "Hijab Segiempat Paris Jadul Premium, Hijab Paris Jadul, Paris Jadul Original",
+    "price": "Rp20.945",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-45.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "46",
+    "name": "AJW [XCM] Baju Wanita Vest N Striped Shirt 2in1 Lengan Panjang Atasan Wanita Crop Vest N Str...",
+    "price": "Rp121.598",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-46.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwAs6fa2W7-o4q4c/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwAs6fa2W7-o4q4c/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "47",
+    "name": "VIONA PANTS - Celana Loose Pants Trousers Wanita Hitam Anti Kusut",
+    "price": "Rp32.900",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-47.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwAvDXhW9R-Ud8m2/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwAvDXhW9R-Ud8m2/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "48",
+    "name": "Hijab Segiempat Paris Jadul Premium, Hijab Paris Jadul, Paris Jadul Original",
+    "price": "Rp20.945",
+    "category": "Hijab",
+    "type": "Hijab",
+    "image": "public/assets/produk-48.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwByKGKxkF-kfRp4/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Hijab",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Hijab",
+    "desc": ""
+  },
+  {
+    "id": "49",
+    "name": "CHICMORE Atasan Dua Potong Palsu Pakaian Wanita Gaya Kekinian Baru",
+    "price": "Rp139.000",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-49.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwAwAMhCcr-gbyZ0/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwAwAMhCcr-gbyZ0/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "50",
+    "name": "Auzura - Obi Pants - Celana Highwaist Trousers Loose Pants - Celana Kulot Kantor Formal Anti Kusut Casual",
+    "price": "Rp65.900",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-50.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwx8SbrLrr-uXdWL/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwx8SbrLrr-uXdWL/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "51",
+    "name": "AJW [XCM] Baju Wanita Vest N Striped Shirt 2in1 Lengan Panjang Atasan Wanita Crop Vest N Str...",
+    "price": "Rp121.598",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-51.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwAs6fa2W7-o4q4c/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwAs6fa2W7-o4q4c/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "52",
+    "name": "VIONA PANTS - Celana Loose Pants Trousers Wanita Hitam Anti Kusut",
+    "price": "Rp32.900",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-52.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jwAvDXhW9R-Ud8m2/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jwAvDXhW9R-Ud8m2/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "53",
+    "name": "Berkah Fashion11 CARDIGAN WOL RAJUT WANITA KNITWEAR KOREAN STYLE LIST FULL MUTIARA",
+    "price": "Rp47.226",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-53.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEynMCjtc9-qlDUn/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEynMCjtc9-qlDUn/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "54",
+    "name": "Maison Obscura Celana Jeans Wanita Putih High Waist Wide Leg Bahan Denim Berkualitas Nyaman ...",
+    "price": "Rp125.754",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-54.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEyES2qFHj-afriY/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEyES2qFHj-afriY/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "55",
+    "name": "SP-335 DNY Indonesia Sneakers Casual Unisex",
+    "price": "Rp118.000",
+    "category": "Sepatu",
+    "type": "Sepatu",
+    "image": "public/assets/produk-55.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEfRpokoKw-jPpHQ/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEfRpokoKw-jPpHQ/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Sepatu",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Sepatu",
+    "desc": ""
+  },
+  {
+    "id": "56",
+    "name": "CALISSA FASHION BISA COD BLOUSE/ATASAN WANITA STYLE KOREA MODEL YUKARI",
+    "price": "Rp49.900",
+    "category": "Atasan",
+    "type": "Atasan",
+    "image": "public/assets/produk-56.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEfPVP6KHn-Sm1lv/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEfPVP6KHn-Sm1lv/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Atasan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Atasan",
+    "desc": ""
+  },
+  {
+    "id": "57",
+    "name": "CELANA Panjang JEANS WANITA HIGHWAIST LOOSEPANT MODEL KOREA TERBARU Bahan Jeans Nyaman Tahan...",
+    "price": "Rp88.480",
+    "category": "Bawahan",
+    "type": "Bawahan",
+    "image": "public/assets/produk-57.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEfxHxdy3Q-DmtDv/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEfxHxdy3Q-DmtDv/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Bawahan",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Bawahan",
+    "desc": ""
+  },
+  {
+    "id": "58",
+    "name": "0487 [Sepatu DNY] Sepatu Kasual Perempuan Fashion Kekinian Sepatu Sneakers Wanita Keren Kore...",
+    "price": "Rp129.000",
+    "category": "Sepatu",
+    "type": "Sepatu",
+    "image": "public/assets/produk-58.webp",
+    "link": "https://vt.tokopedia.com/t/ZS9jEf4gkddLM-CWGwQ/",
+    "tiktokLink": "https://vt.tokopedia.com/t/ZS9jEf4gkddLM-CWGwQ/",
+    "platform": "Tokopedia",
+    "tags": [
+      "Sepatu",
+      "Tokopedia"
+    ],
+    "subtitle": "",
+    "size": "",
+    "colors": [],
+    "badge": "Sepatu",
+    "desc": ""
+  }
+]

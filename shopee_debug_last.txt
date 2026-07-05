@@ -1,0 +1,2 @@
+=== DEBUG SHOPEE AFFILIATE API ===
+Config tidak ada. Buat shopee_api_config.json untuk jalur API resmi.

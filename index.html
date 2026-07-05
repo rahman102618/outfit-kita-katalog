@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outfit Kita — Katalog Produk</title>
+  <style>
+    :root {
+      --bg: #fbf7ef;
+      --card: #ffffff;
+      --text: #18181b;
+      --muted: #71717a;
+      --line: #ebe3d6;
+      --dark: #111111;
+      --gold: #d49a1f;
+      --gold-soft: #fff3d4;
+      --shadow: 0 18px 45px rgba(39, 32, 22, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(245, 158, 11, .14), transparent 28%),
+        radial-gradient(circle at 90% 12%, rgba(0, 0, 0, .06), transparent 24%),
+        var(--bg);
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    .page { max-width: 1180px; margin: 0 auto; padding: 16px 14px 54px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 0 14px;
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      object-fit: cover;
+      background: #111;
+      box-shadow: 0 8px 22px rgba(0,0,0,.12);
+    }
+    .brand h1 { margin: 0; font-size: 18px; line-height: 1.1; letter-spacing: -.3px; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .tiktok-link {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,.06);
+      flex: 0 0 auto;
+    }
+    .tiktok-link svg { width: 23px; height: 23px; }
+
+    .hero {
+      margin-top: 4px;
+      border-radius: 28px;
+      padding: clamp(22px, 4vw, 44px);
+      background: linear-gradient(135deg, #111 0%, #21180b 100%);
+      color: #fff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      right: -120px;
+      top: -140px;
+      background: rgba(245, 158, 11, .18);
+      filter: blur(38px);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 790px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #fde68a;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .hero h2 {
+      margin: 18px 0 0;
+      font-size: clamp(34px, 5.2vw, 62px);
+      line-height: 1.02;
+      letter-spacing: -1.8px;
+    }
+    .hero p {
+      margin: 16px 0 0;
+      color: rgba(255,255,255,.72);
+      font-size: clamp(14px, 2vw, 17px);
+      line-height: 1.7;
+      font-weight: 650;
+    }
+
+    .search-panel {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .searchbox {
+      position: relative;
+    }
+    .searchbox span {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a1a1aa;
+      pointer-events: none;
+    }
+    .searchbox input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      border-radius: 18px;
+      padding: 16px 16px 16px 44px;
+      background: #fff;
+      font-weight: 850;
+      box-shadow: 0 12px 30px rgba(0,0,0,.12);
+    }
+    .filter-toggle {
+      border: 0;
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: #fbbf24;
+      color: #111;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(251,191,36,.20);
+    }
+
+    .category-wrap { margin-top: 12px; position: relative; }
+    .category-toggle-main {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 18px;
+      font-weight: 1000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.10);
+    }
+    .category-toggle-main span { color: #fbbf24; }
+    .category-toggle-main em { font-style: normal; color: #fde68a; }
+    .category-toggle-main.active {
+      background: #fff;
+      color: #111;
+      border-color: #fff;
+    }
+    .category-pills {
+      display: none;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .category-pills.show { display: flex; }
+    .pill {
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.82);
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .pill.active {
+      background: #fff;
+      color: #111;
+      border-color: #fff;
+    }
+
+    .filters {
+      display: none;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .filters.show { display: grid; }
+    .field label {
+      display: block;
+      margin: 0 0 6px 3px;
+      color: rgba(255,255,255,.72);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+    .field input, .field select {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      border-radius: 15px;
+      padding: 13px 13px;
+      background: rgba(255,255,255,.96);
+      color: #111;
+      font-weight: 850;
+    }
+    .reset-btn {
+      align-self: end;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 15px;
+      padding: 13px 14px;
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 30px 0 14px;
+    }
+    .section-head h2 { margin: 0; font-size: clamp(24px, 3.4vw, 38px); letter-spacing: -.8px; }
+    .section-head p { margin: 7px 0 0; color: var(--muted); font-weight: 650; line-height: 1.5; }
+    .count { color: var(--gold); font-weight: 1000; white-space: nowrap; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 32px rgba(39,32,22,.08);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(39,32,22,.13); }
+    .photo {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      background: #eee7dc;
+    }
+    .photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s ease; }
+    .card:hover .photo img { transform: scale(1.04); }
+    .badge, .code, .price {
+      position: absolute;
+      z-index: 2;
+      border-radius: 999px;
+      font-weight: 1000;
+      box-shadow: 0 8px 20px rgba(0,0,0,.14);
+    }
+    .badge {
+      left: 12px;
+      top: 12px;
+      background: rgba(255,255,255,.94);
+      color: #111;
+      padding: 8px 11px;
+      font-size: 12px;
+    }
+    .code {
+      right: 12px;
+      top: 12px;
+      background: rgba(17,17,17,.82);
+      color: #fff;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+    .price {
+      left: 12px;
+      bottom: 12px;
+      background: #111;
+      color: #fbbf24;
+      padding: 9px 12px;
+      font-size: 14px;
+    }
+    .content { padding: 14px; }
+    .content h3 {
+      margin: 0;
+      font-size: 15.5px;
+      line-height: 1.35;
+      letter-spacing: -.2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 42px;
+    }
+    .merged-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+    .buy {
+      margin-top: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 15px;
+      background: #111;
+      color: #fff;
+      font-weight: 1000;
+      transition: .16s ease;
+    }
+    .buy:hover { background: #000; transform: translateY(-1px); }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 30px;
+      text-align: center;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    footer {
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-radius: 24px;
+      padding: 18px;
+      background: #111;
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    footer strong { display: block; font-size: 18px; }
+    footer span { display: block; margin-top: 4px; color: rgba(255,255,255,.62); font-size: 13px; font-weight: 650; }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .page { padding: 12px 10px 38px; }
+      .hero { border-radius: 24px; }
+      .search-row { grid-template-columns: 1fr; }
+      .filter-toggle { width: 100%; }
+      .section-head { align-items: start; flex-direction: column; gap: 8px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+      .content { padding: 12px; }
+      .content h3 { font-size: 14px; min-height: 38px; }
+      .price { font-size: 12.5px; }
+      .badge { font-size: 11px; padding: 7px 9px; }
+      footer { align-items: flex-start; }
+    }
+    @media (max-width: 420px) {
+      .brand h1 { font-size: 16px; }
+      .brand p { display: none; }
+      .hero h2 { letter-spacing: -1px; }
+      .filters { grid-template-columns: 1fr; }
+      .grid { gap: 10px; }
+      .buy { padding: 11px 8px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Outfit Kita">
+        <img class="brand-logo" src="public/assets/logo.jpeg" alt="Logo Outfit Kita" onerror="this.style.display='none'">
+        <div>
+          <h1>Outfit Kita</h1>
+          <p>Katalog fashion pilihan</p>
+        </div>
+      </a>
+      <a class="tiktok-link" href="https://tiktok.com/@outfit.kita.20" target="_blank" rel="noreferrer" aria-label="Buka TikTok Outfit Kita">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M36 10v28.5a8.5 8.5 0 1 1-6-8.12V23.5c-8.78.98-15.5 8.41-15.5 17.47C14.5 50.7 22.3 58.5 32 58.5S49.5 50.7 49.5 41V24.2c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H36Z" fill="#111"/>
+          <path d="M32.5 13v28a6.8 6.8 0 1 1-4.8-6.5V28c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3S44 49.98 44 42.1V19.7c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H32.5Z" fill="#25F4EE"/>
+          <path d="M35.8 10.4v28a6.8 6.8 0 1 1-4.8-6.5v4.48a3.1 3.1 0 1 0 1.95 2.9V13.95h10.1c1.44 4.29 5.34 7.15 9.62 7.55v4.2c-3.45-.07-6.66-1.17-9.3-3.05v22.4c0 7.88-6.42 14.3-14.3 14.3S14.75 52.93 14.75 45.05c0-7.2 5.32-13.18 12.3-14.1v-2.6c-8.75.95-15.45 8.36-15.45 17.4 0 9.7 7.8 17.5 17.5 17.5s17.5-7.8 17.5-17.5V28.95c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H35.8Z" fill="#FE2C55"/>
+          <path d="M33.4 13.95v25.33a3.1 3.1 0 1 1-2.4-3.02V28.8c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3s14.3-6.42 14.3-14.3V20.5c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H33.4Z" fill="#111"/>
+        </svg>
+      </a>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-content">
+        <span class="eyebrow">✦ Katalog Affiliate TikTok Shop</span>
+        <h2>Cari outfit jadi lebih cepat dan rapi.</h2>
+        <p>Masukkan kode, nama produk, atau pilih kategori. Tampilan dibuat lebih simpel supaya nyaman dilihat di HP maupun laptop.</p>
+
+        <div class="search-panel">
+          <div class="search-row">
+            <div class="searchbox">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Cari no produk atau nama produk..." autocomplete="off" />
+            </div>
+            <button class="filter-toggle" id="filterToggle" type="button">Filter</button>
+          </div>
+
+          <div class="category-wrap">
+            <button class="category-toggle-main" id="categoryToggle" type="button">
+              <span>☰</span><strong>Semua Kategori</strong><em>▾</em>
+            </button>
+            <div class="category-pills" id="categoryPills"></div>
+          </div>
+
+          <div class="filters" id="filterPanel">
+            <div class="field">
+              <label>Harga Min</label>
+              <input id="filterPriceMin" type="text" inputmode="numeric" placeholder="Contoh 50000" />
+            </div>
+            <div class="field">
+              <label>Harga Max</label>
+              <input id="filterPriceMax" type="text" inputmode="numeric" placeholder="Contoh 200000" />
+            </div>
+            <div class="field">
+              <label>Urutkan</label>
+              <select id="sortBy">
+                <option value="new">Terbaru</option>
+                <option value="low">Harga Terendah</option>
+                <option value="high">Harga Tertinggi</option>
+                <option value="name">Nama A-Z</option>
+              </select>
+            </div>
+            <button class="reset-btn" type="button" id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Produk Pilihan</h2>
+          <p>Produk yang sama otomatis digabung, tapi tetap bisa dicari lewat nomor produk masing-masing.</p>
+        </div>
+        <div class="count" id="productCount">0 produk</div>
+      </div>
+
+      <div class="grid" id="productGrid"></div>
+    </section>
+
+    <footer>
+      <div>
+        <strong>Outfit Kita</strong>
+        <span>Katalog simpel, rapi, dan mudah dicari.</span>
+      </div>
+      <a class="tiktok-link" href="https://tiktok.com/@outfit.kita.20" target="_blank" rel="noreferrer" aria-label="Buka TikTok Outfit Kita">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M36 10v28.5a8.5 8.5 0 1 1-6-8.12V23.5c-8.78.98-15.5 8.41-15.5 17.47C14.5 50.7 22.3 58.5 32 58.5S49.5 50.7 49.5 41V24.2c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H36Z" fill="#111"/><path d="M32.5 13v28a6.8 6.8 0 1 1-4.8-6.5V28c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3S44 49.98 44 42.1V19.7c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H32.5Z" fill="#25F4EE"/><path d="M35.8 10.4v28a6.8 6.8 0 1 1-4.8-6.5v4.48a3.1 3.1 0 1 0 1.95 2.9V13.95h10.1c1.44 4.29 5.34 7.15 9.62 7.55v4.2c-3.45-.07-6.66-1.17-9.3-3.05v22.4c0 7.88-6.42 14.3-14.3 14.3S14.75 52.93 14.75 45.05c0-7.2 5.32-13.18 12.3-14.1v-2.6c-8.75.95-15.45 8.36-15.45 17.4 0 9.7 7.8 17.5 17.5 17.5s17.5-7.8 17.5-17.5V28.95c3.26 2.33 7.24 3.71 11.5 3.8v-9.2c-4.2-.5-8.26-3.47-9.68-7.8H35.8Z" fill="#FE2C55"/><path d="M33.4 13.95v25.33a3.1 3.1 0 1 1-2.4-3.02V28.8c-6.98.92-12.3 6.89-12.3 14.1 0 7.88 6.42 14.3 14.3 14.3s14.3-6.42 14.3-14.3V20.5c2.64 1.88 5.85 2.98 9.3 3.05v-4.2c-4.28-.4-8.18-3.26-9.62-7.55H33.4Z" fill="#111"/></svg>
+      </a>
+    </footer>
+  </main>
+
+  <script src="script.js?v=produk-digabung-v3"></script>
+</body>
+</html>
