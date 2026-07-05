@@ -1,0 +1,29 @@
+PATCH PARSER PASTI SHARE TEXT / LINK + HARGA
+
+Yang diubah:
+1. Format nomor sekarang bisa membaca:
+   01. Cek Nama Produk dengan harga Rp106.000 ... https://s.shopee.co.id/xxx
+   02. https://vt.tokopedia.com/t/xxx/ harga 65.000
+   03. Nama Produk TikTok https://vt.tiktok.com/xxx harga 88.000
+
+2. Shopee share text:
+   - Nama diambil dari setelah kata "Cek" sampai sebelum "dengan harga".
+   - Harga diambil dari setelah "dengan harga".
+   - Link diambil dari URL pertama.
+   - Gambar tetap disimpan/diarahkan ke public/assets/NO.jpg.
+
+3. TikTok/Tokopedia:
+   - Harga diambil dari kata "harga" setelah link.
+   - Kalau nama produk ditulis sebelum link, nama langsung dipakai.
+   - Kalau hanya link + harga, script tetap mencoba ambil nama dari link. Jika marketplace menutup data, script akan minta nama manual agar kategori tidak salah.
+
+Cara pasang:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_parser_pasti.py
+unzip -o /storage/emulated/0/Download/outfit-kita-parser-pasti-sharetext-patch.zip -d .
+python manage_products.py
+
+Contoh input terbaik:
+01. Cek Yubeli Sally maxi skirt katun poplin | Rok panjang wanita | Rok katun premium dengan harga Rp106.000. Dapatkan di Shopee sekarang! https://s.shopee.co.id/AUs743P1y0?share_channel_code=1
+02. Rok plisket premium wanita https://vt.tokopedia.com/t/ZS96bc2HTf5FN-kMxFO/ harga 65.000
+03. Dress wanita Korean style https://vt.tiktok.com/xxxxx/ harga 88.000

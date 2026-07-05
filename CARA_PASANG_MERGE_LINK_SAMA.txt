@@ -1,0 +1,25 @@
+PATCH: Gabung Produk Link Sama + Cari Semua Nomor
+
+Isi patch:
+- manage_products.py
+  - Kalau link produk yang sama dimasukkan lagi, produk otomatis digabung.
+  - Tidak membuat kartu produk double.
+  - Nomor produk baru disimpan sebagai alias/search id.
+  - Di katalog web, cari no lama atau no baru tetap menemukan produk yang sama.
+  - Nama utama tetap satu nama saja.
+- script.js
+  - Katalog web mendukung produk unik, varian nomor, dan pencarian semua nomor.
+
+Cara pasang di Termux:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_merge_link.py
+cp script.js script_backup_sebelum_merge_link.js 2>/dev/null
+unzip -o /storage/emulated/0/Download/outfit-kita-merge-link-sama-patch.zip -d .
+python manage_products.py
+
+Catatan:
+- Data produk lama tidak hilang.
+- Saat produk dengan link sama dimasukkan, data akan digabung ke produk lama.
+- Kalau produk lama sudah punya nama bagus, nama itu tetap dipakai sebagai nama utama.
+- Nomor baru tetap bisa dicari di web katalog.

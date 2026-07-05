@@ -1,0 +1,43 @@
+CARA MEMASUKKAN ZIP INI KE KODE LEWAT TERMUX
+
+1. Download file ZIP ini ke HP. Biasanya masuk ke folder Download.
+
+2. Buka Termux, lalu jalankan:
+
+termux-setup-storage
+cd /storage/emulated/0/Termux
+
+3. Backup project lama dulu supaya aman:
+
+mv outfit-kita-katalog outfit-kita-katalog-backup
+
+4. Ekstrak ZIP baru:
+
+unzip /storage/emulated/0/Download/outfit-kita-katalog-fix.zip -d /storage/emulated/0/Termux
+
+5. Masuk ke folder kodenya:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog
+
+6. Cek isi file:
+
+ls
+
+7. Upload ke GitHub supaya Vercel ikut berubah:
+
+git status
+git add .
+git commit -m "fix kategori produk"
+git push origin main
+
+CATATAN:
+- Kalau perintah git push gagal karena folder baru tidak ada koneksi GitHub, pakai cara cepat overwrite di project lama:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog-backup
+unzip -o /storage/emulated/0/Download/outfit-kita-katalog-fix.zip -d /storage/emulated/0/Termux
+cd /storage/emulated/0/Termux/outfit-kita-katalog
+git add .
+git commit -m "fix kategori produk"
+git push origin main
+
+- Setelah push berhasil, tunggu Vercel 1-3 menit lalu refresh web.

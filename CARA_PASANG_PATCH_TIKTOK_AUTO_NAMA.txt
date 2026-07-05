@@ -1,0 +1,25 @@
+PATCH TIKTOK AUTO NAMA + CEK DATA SEBELUM KATEGORI
+
+Isi patch:
+- manage_products.py
+
+Yang diperbaiki:
+1. Auto ambil nama produk dari link TikTok/TikTok Shop dibuat lebih kuat.
+2. Link pendek TikTok dicoba resolve dulu ke link asli.
+3. Nama dicoba dari HTML, meta title, JSON state, oEmbed TikTok, dan slug link.
+4. Gambar produk TikTok dicoba dari meta image, oEmbed thumbnail, dan CDN TikTok/TikTok Shop.
+5. Sebelum pilih kategori, program menampilkan data yang berhasil diambil dari link.
+6. Jika nama tetap gagal karena link pendek/affiliate dibatasi, program meminta nama manual terlebih dahulu supaya kategori tidak salah.
+7. Dashboard admin web tetap tidak ditambahkan lagi.
+
+Cara pasang:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_tiktok_auto_nama.py
+unzip -o /storage/emulated/0/Download/outfit-kita-tiktok-auto-nama-patch.zip -d .
+python manage_products.py
+
+Jika auto nama TikTok masih gagal, cek debug:
+cat tiktok_debug_last.txt
+
+Catatan:
+TikTok/Tokopedia kadang membatasi link pendek/affiliate. Kalau halaman diblokir oleh marketplace, tidak ada script yang bisa membaca nama dari link pendek tersebut tanpa data tambahan. Untuk hasil paling stabil, gunakan link produk asli atau tempel teks share yang memuat nama produk.

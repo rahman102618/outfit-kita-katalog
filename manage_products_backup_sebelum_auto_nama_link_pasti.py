@@ -895,277 +895,47 @@ def normalize_link_for_cache(value):
         return raw.lower()
 
 
-
-
-def safe_list_values(value):
-    """Ubah nilai menjadi list teks unik tanpa mengubah urutan."""
-    if value is None:
-        return []
-    if isinstance(value, list):
-        raw_items = value
-    else:
-        raw_items = [value]
-    out = []
-    seen = set()
-    for item in raw_items:
-        text = str(item or "").strip()
-        if not text:
-            continue
-        key = text.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(text)
-    return out
-
-
-def product_variants(product):
-    """Ambil daftar varian/nomor produk yang tersimpan di satu kartu produk."""
-    variants = []
-    if isinstance(product.get("_variants"), list):
-        variants.extend([v for v in product.get("_variants") if isinstance(v, dict)])
-    if isinstance(product.get("variants"), list):
-        variants.extend([v for v in product.get("variants") if isinstance(v, dict)])
-    return variants
-
-
-def product_all_ids(product):
-    """Semua nomor produk yang harus bisa dicari di katalog web."""
-    ids = []
-    for key in ["id", "_aliases", "_allIds", "searchIds"]:
-        ids.extend(safe_list_values(product.get(key)))
-    for variant in product_variants(product):
-        ids.extend(safe_list_values(variant.get("id")))
-    # unik, tapi tetap pertahankan urutan
-    out = []
-    seen = set()
-    for item in ids:
-        key = str(item).strip().lower()
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        out.append(str(item).strip())
-    return out
-
-
-def product_link_keys(product):
-    """Semua link yang dianggap mewakili produk yang sama."""
-    keys = []
-    link_fields = [
-        "link", "tiktokLink", "productLink", "affiliateLink",
-        "final_url", "finalUrl", "url", "source_url", "sourceUrl",
-    ]
-    for field in link_fields:
-        key = normalize_link_for_cache(product.get(field, ""))
-        if key:
-            keys.append(key)
-
-    for raw_link in safe_list_values(product.get("_links")):
-        key = normalize_link_for_cache(raw_link)
-        if key:
-            keys.append(key)
-
-    for variant in product_variants(product):
-        for field in link_fields:
-            key = normalize_link_for_cache(variant.get(field, ""))
-            if key:
-                keys.append(key)
-
-    out = []
-    seen = set()
-    for key in keys:
-        if key and key not in seen:
-            seen.add(key)
-            out.append(key)
-    return out
-
-
-def make_product_variant(product):
-    """Simpan snapshot produk sebagai varian supaya nomor lama/baru tetap bisa dicari."""
-    keep_fields = [
-        "id", "name", "price", "category", "type", "badge", "image", "link",
-        "tiktokLink", "platform", "tags", "subtitle", "desc", "size", "colors"
-    ]
-    variant = {}
-    for field in keep_fields:
-        if field in product and product.get(field) not in [None, ""]:
-            variant[field] = product.get(field)
-    return variant
-
-
-def unique_variants_py(variants):
-    """Hilangkan varian yang benar-benar sama, tapi pertahankan nomor berbeda."""
-    out = []
-    seen = set()
-    for variant in variants:
-        if not isinstance(variant, dict):
-            continue
-        key = "|".join([
-            str(variant.get("id", "")).strip().lower(),
-            normalize_link_for_cache(variant.get("link") or variant.get("tiktokLink") or ""),
-            clean_text(variant.get("name", "")).lower(),
-            clean_text(variant.get("price", "")).lower(),
-        ])
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(variant)
-    return out
-
-
-def merge_same_link_product(existing, incoming):
-    """Gabungkan produk dengan link sama agar tidak double di JSON/katalog.
-
-    Hasil:
-    - hanya satu kartu produk utama
-    - semua nomor produk disimpan di _aliases/_allIds/searchIds
-    - nomor lama/baru tetap bisa dicari di website
-    - nama utama tetap satu nama saja
-    """
-    existing = normalize_product(dict(existing or {}))
-    incoming = normalize_product(dict(incoming or {}))
-
-    existing_variant = make_product_variant(existing)
-    incoming_variant = make_product_variant(incoming)
-
-    aliases = product_all_ids(existing)
-    for pid in product_all_ids(incoming):
-        if pid.lower() not in {x.lower() for x in aliases}:
-            aliases.append(pid)
-
-    # Simpan semua varian untuk pencarian nomor di katalog web.
-    variants = []
-    variants.extend(product_variants(existing))
-    if existing_variant.get("id"):
-        variants.append(existing_variant)
-    if incoming_variant.get("id"):
-        variants.append(incoming_variant)
-    variants = unique_variants_py(variants)
-
-    # Nama utama: jangan berubah kalau nama lama sudah bagus.
-    old_name = clean_title(existing.get("name") or "")
-    new_name = clean_title(incoming.get("name") or "")
-    old_placeholder = is_placeholder_product_name(old_name, existing.get("id"))
-    new_valid = new_name and is_probably_product_name(new_name) and not is_placeholder_product_name(new_name, incoming.get("id"))
-    if old_placeholder and new_valid:
-        existing["name"] = new_name
-
-    # Harga: update kalau harga baru lebih jelas.
-    if incoming.get("price") and incoming.get("price") != "Cek harga":
-        existing["price"] = incoming.get("price")
-
-    # Kategori: pertahankan kategori lama, kecuali kategori lama kosong/default dan yang baru lebih jelas.
-    old_cat = clean_category_name(existing.get("category") or "")
-    new_cat = clean_category_name(incoming.get("category") or "")
-    if (not old_cat or old_cat.lower() == "atasan") and new_cat:
-        existing["category"] = new_cat
-        existing["type"] = new_cat
-        existing["badge"] = new_cat
-
-    # Gambar utama: pertahankan lama kalau sudah ada, pakai baru kalau lama masih fallback.
-    old_img = str(existing.get("image") or "")
-    new_img = str(incoming.get("image") or "")
-    if new_img and (not old_img or "no-image" in old_img.lower()):
-        existing["image"] = new_img
-
-    # Link utama tetap link pertama, tapi semua link disimpan agar duplicate terdeteksi.
-    links = []
-    for p in [existing, incoming]:
-        for raw in [p.get("link"), p.get("tiktokLink"), p.get("productLink"), p.get("affiliateLink"), p.get("final_url")]:
-            raw = str(raw or "").strip()
-            if raw and raw not in links:
-                links.append(raw)
-    if links:
-        existing["link"] = existing.get("link") or links[0]
-        existing["tiktokLink"] = existing.get("tiktokLink") or existing["link"]
-        existing["_links"] = links
-
-    existing["_aliases"] = aliases
-    existing["_allIds"] = aliases
-    existing["searchIds"] = aliases
-    existing["_variants"] = variants
-    existing["tags"] = existing.get("tags") or [existing.get("category", "Atasan"), existing.get("platform", "Affiliate")]
-    return normalize_product(existing)
-
 def find_cached_product_by_link(products, link):
     """Cari produk lama dari link yang pernah dimasukkan.
 
-    Sekarang juga membaca _links/_variants supaya link yang sama otomatis
-    digabung dan tidak membuat kartu produk double.
+    Dipakai supaya kalau user memasukkan link yang sama, data lama
+    seperti nama, harga, kategori, dan gambar langsung dipakai tanpa
+    bertanya lagi.
     """
     target_key = normalize_link_for_cache(link)
     if not target_key:
         return None
 
     for p in products:
-        if target_key in product_link_keys(p):
-            return p
+        keys = [
+            p.get("link", ""),
+            p.get("tiktokLink", ""),
+            p.get("productLink", ""),
+            p.get("affiliateLink", ""),
+        ]
+        for old_link in keys:
+            if old_link and normalize_link_for_cache(old_link) == target_key:
+                return p
     return None
 
 
 def save_or_replace_product(products, product):
-    """Simpan produk.
-
-    Aturan:
-    1. Jika ID sama, update produk.
-    2. Jika link sama, gabungkan ke produk lama, bukan tambah kartu baru.
-    3. Nomor produk baru tetap disimpan sebagai alias/search id supaya katalog web
-       tetap bisa menampilkan produk saat user mencari nomor itu.
-    """
-    product = normalize_product(product)
-    incoming_links = set(product_link_keys(product))
-
-    # 1) Kalau link sama dengan produk lama, gabungkan.
-    if incoming_links:
-        for i, old in enumerate(products):
-            old_links = set(product_link_keys(old))
-            if old_links and incoming_links.intersection(old_links):
-                old_id = str(old.get("id", "")).strip()
-                new_id = str(product.get("id", "")).strip()
-                products[i] = merge_same_link_product(old, product)
-                if new_id and new_id != old_id:
-                    info(f"Link produk sudah ada. No {new_id} digabung ke produk no {old_id}.")
-                save_products_sorted(products)
-                return products
-
-    # 2) Kalau ID sama, replace/update.
+    """Simpan produk. Kalau ID sama, replace; kalau tidak, tambah baru."""
+    replaced = False
     for i, old in enumerate(products):
         if str(old.get("id")) == str(product.get("id")):
-            products[i] = merge_same_link_product(old, product)
-            save_products_sorted(products)
-            return products
-
-    # 3) Produk baru.
-    products.append(product)
-    save_products_sorted(products)
-    return products
-
-
-def save_products_sorted(products):
-    """Sortir lalu rapikan data supaya link yang sama tinggal satu produk."""
-    compacted = []
-    for item in products:
-        item = normalize_product(item)
-        item_links = set(product_link_keys(item))
-        merged = False
-        if item_links:
-            for i, old in enumerate(compacted):
-                old_links = set(product_link_keys(old))
-                if old_links and item_links.intersection(old_links):
-                    compacted[i] = merge_same_link_product(old, item)
-                    merged = True
-                    break
-        if not merged:
-            compacted.append(item)
+            products[i] = product
+            replaced = True
+            break
+    if not replaced:
+        products.append(product)
 
     def sort_key(x):
-        value = str(x.get("id", ""))
-        digits = only_digits(value)
-        return int(digits or 999999)
+        return int(only_digits(x.get("id", "")) or 999999)
 
-    compacted.sort(key=sort_key)
-    products[:] = compacted
+    products.sort(key=sort_key)
     save_products(products)
+    return products
 
 
 def clone_cached_product(cached_product, new_id, new_link=None):
@@ -2007,18 +1777,6 @@ def get_session():
     s = requests.Session()
     s.headers.update(HEADERS)
     return s
-
-
-
-
-def get_scraper_session():
-    """Alias aman untuk patch auto-nama.
-
-    Beberapa patch lama memakai nama get_scraper_session(),
-    sementara file utama memakai get_session(). Fungsi ini dibuat
-    supaya auto ambil nama dari link tidak error NameError.
-    """
-    return get_session()
 
 
 def curl_get_text(url, referer="https://www.google.com/", timeout=35):
@@ -4246,409 +4004,6 @@ def show_product_before_category(pid, name, price, platform, link):
         print(box_line(width, color=border, bottom=True))
 
 
-
-# =========================
-# Force Auto Nama Dari Link
-# =========================
-# Bagian ini tidak mengubah data produk lama. Fungsinya hanya menambah jalur
-# pencarian nama/foto dari link ketika marketplace tidak langsung memberi data.
-# Urutan: redirect -> HTML/meta/JSON -> URL asli -> metadata publik -> slug URL.
-
-def common_bad_product_name(value, pid=""):
-    title = clean_title(value or "")
-    low = title.lower().strip()
-    pid = str(pid or "").strip().lower()
-    if not low:
-        return True
-    if pid and low in {f"produk {pid}", f"product {pid}", pid}:
-        return True
-    bad_exact = {
-        "produk", "product", "item", "tokopedia", "shopee", "tiktok", "tiktok shop",
-        "toko online", "jual beli online", "login", "masuk", "captcha", "security check",
-        "akses ditolak", "just a moment", "attention required", "403 forbidden", "404 not found",
-    }
-    if low in bad_exact:
-        return True
-    if low.startswith(("tokopedia -", "shopee indonesia", "tiktok -", "login", "masuk", "captcha")):
-        return True
-    if any(x in low for x in ["verification", "robot", "cloudflare", "enable javascript"]):
-        return True
-    if len(low) < 5:
-        return True
-    if re.fullmatch(r"[a-z]{1,3}\d+|\d+|[-_./]+", low):
-        return True
-    return False
-
-
-def clean_common_product_name(value, pid=""):
-    name = unescape(decode_many(value or "", rounds=5))
-    name = name.replace("\\/", "/").replace("\\u002F", "/")
-    name = re.sub(r"<[^>]+>", " ", name)
-    name = re.sub(r"(?i)\s*(\||-|—|–|•|:)\s*(tokopedia|shopee|tiktok shop|tiktok|jual beli online.*|official store)\s*$", "", name)
-    name = re.sub(r"(?i)^\s*(cek|beli|lihat|checkout|order|pesan)\s+", "", name)
-    name = re.split(r"(?i)\s+dengan\s+harga\b|\s+harga\b|\s+Dapatkan\s+di\b|\s+Dapatkan\b|\s+sekarang\b", name, maxsplit=1)[0]
-    name = re.sub(r"(?i)\b(?:Rp\s*)?\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?\b", "", name)
-    name = re.sub(r"[\s\-|,.;:]+$", "", name).strip()
-    name = clean_title(name, max_len=180)
-    if common_bad_product_name(name, pid):
-        return ""
-    return name
-
-
-def extract_meta_content_regex(html, names):
-    values = []
-    if not html:
-        return values
-    decoded = decode_many(html, rounds=6)
-    name_alt = "|".join(re.escape(x) for x in names)
-    patterns = [
-        rf'<meta[^>]+(?:property|name|itemprop)=["\'](?:{name_alt})["\'][^>]+content=["\']([^"\']+)["\']',
-        rf'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name|itemprop)=["\'](?:{name_alt})["\']',
-    ]
-    for pat in patterns:
-        for m in re.findall(pat, decoded, re.I | re.S):
-            values.append(m)
-    return values
-
-
-def extract_name_candidates_from_html(html, final_url="", pid=""):
-    candidates = []
-    if not html:
-        html = ""
-    decoded = decode_many(html, rounds=8)
-    decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&").replace("\\u0022", '"')
-
-    candidates.extend(extract_meta_content_regex(decoded, [
-        "og:title", "twitter:title", "title", "product:title", "product_name", "name",
-    ]))
-
-    for pat in [
-        r"<title[^>]*>(.*?)</title>",
-        r'"(?:productName|product_name|productTitle|product_title|itemName|item_name|goodsName|goods_name|displayName|title|name)"\s*:\s*"([^"<>]{5,280})"',
-        r'"(?:seoTitle|seo_title|metaTitle|pageTitle)"\s*:\s*"([^"<>]{5,280})"',
-        r"(?im)^Title:\s*(.+)$",
-        r"(?im)^#\s+(.+)$",
-        r"(?i)nama\s+produk\s*[:=]\s*([^\n\r<>]{5,220})",
-    ]:
-        for m in re.findall(pat, decoded, re.I | re.S):
-            candidates.append(m)
-
-    for m in re.findall(r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', decoded, re.I | re.S):
-        try:
-            obj = json.loads(m.strip())
-            stack = [obj]
-            while stack:
-                cur = stack.pop()
-                if isinstance(cur, dict):
-                    typ = str(cur.get("@type") or cur.get("type") or "").lower()
-                    if "product" in typ and cur.get("name"):
-                        candidates.append(str(cur.get("name")))
-                    stack.extend(cur.values())
-                elif isinstance(cur, list):
-                    stack.extend(cur)
-        except Exception:
-            pass
-
-    slug = title_from_url_slug(final_url)
-    if slug:
-        candidates.append(slug)
-
-    cleaned = []
-    seen = set()
-    for cand in candidates:
-        cand = clean_common_product_name(cand, pid)
-        if not cand:
-            continue
-        key = cand.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        cleaned.append(cand)
-    return cleaned
-
-
-def score_product_name_candidate(name):
-    low = str(name or "").lower()
-    score = min(len(name), 160)
-    fashion_words = [
-        "gamis", "hijab", "jilbab", "pashmina", "khimar", "rok", "skirt", "baju", "kaos", "kemeja",
-        "dress", "maxi", "kulot", "celana", "outer", "cardigan", "blouse", "tunik", "abaya", "mukena",
-        "tas", "sepatu", "sandal", "wanita", "katun", "premium", "polos", "motif", "set", "oneset",
-    ]
-    if any(w in low for w in fashion_words):
-        score += 50
-    if len(str(name).split()) >= 3:
-        score += 20
-    if any(x in low for x in ["tokopedia", "shopee", "tiktok", "login", "jual beli online"]):
-        score -= 80
-    if re.search(r"\b(rp|harga|checkout|dapatkan|sekarang)\b", low):
-        score -= 25
-    return score
-
-
-def pick_best_product_name(candidates, pid=""):
-    best = ""
-    best_score = -999999
-    for cand in candidates or []:
-        name = clean_common_product_name(cand, pid)
-        if not name:
-            continue
-        score = score_product_name_candidate(name)
-        if score > best_score:
-            best_score = score
-            best = name
-    return best
-
-
-def extract_image_from_any_html(html):
-    try:
-        soup = BeautifulSoup(html, "html.parser") if BeautifulSoup else None
-        imgs = image_candidates(soup, html) if soup is not None else []
-        if imgs:
-            return imgs[0]
-    except Exception:
-        pass
-    return ""
-
-
-def fetch_metadata_services_all(session, url, pid="", logs=None):
-    logs = logs if isinstance(logs, list) else []
-    result = {"name": "", "image_url": "", "price": "", "final_url": url, "html": ""}
-    if not url or requests is None:
-        return result
-
-    clean_url = str(url).strip()
-    jina_targets = []
-    if clean_url.startswith("https://"):
-        jina_targets.extend([
-            "https://r.jina.ai/http://" + clean_url,
-            "https://r.jina.ai/http://" + clean_url.replace("https://", ""),
-        ])
-    elif clean_url.startswith("http://"):
-        jina_targets.extend([
-            "https://r.jina.ai/http://" + clean_url,
-            "https://r.jina.ai/http://" + clean_url.replace("http://", ""),
-        ])
-    else:
-        jina_targets.append("https://r.jina.ai/http://" + clean_url)
-
-    endpoints = [
-        ("microlink", "https://api.microlink.io/?" + urlencode({"url": url, "screenshot": "false", "meta": "false", "embed": "false"})),
-        ("jsonlink", "https://jsonlink.io/api/extract?" + urlencode({"url": url})),
-    ] + [("jina", x) for x in jina_targets]
-
-    for name, api in endpoints:
-        try:
-            headers = dict(HEADERS)
-            headers["Accept"] = "application/json,text/plain,text/html,*/*"
-            res = session.get(api, headers=headers, timeout=35, allow_redirects=True)
-            txt = res.text or ""
-            logs.append(f"SERVICE_{name}_STATUS={res.status_code} LEN={len(txt)}")
-            result["html"] += "\n" + txt[:150000]
-            if not txt:
-                continue
-            try:
-                js = res.json()
-            except Exception:
-                js = None
-            candidates = []
-            if isinstance(js, dict):
-                if name == "microlink":
-                    d = js.get("data") or {}
-                    candidates.extend([d.get("title"), d.get("description")])
-                    img = d.get("image") or d.get("logo") or {}
-                    if isinstance(img, dict):
-                        img = img.get("url") or img.get("src")
-                    if img and not result["image_url"]:
-                        result["image_url"] = normalize_image_value(str(img))
-                    if d.get("url"):
-                        result["final_url"] = d.get("url")
-                elif name == "jsonlink":
-                    candidates.extend([js.get("title"), js.get("description")])
-                    img = js.get("images") or js.get("image") or ""
-                    if isinstance(img, list) and img:
-                        img = img[0]
-                    if img and not result["image_url"]:
-                        result["image_url"] = normalize_image_value(str(img))
-                    if js.get("url"):
-                        result["final_url"] = js.get("url")
-                stack = [js]
-                while stack:
-                    cur = stack.pop()
-                    if isinstance(cur, dict):
-                        for key in ["title", "name", "productName", "product_name", "description"]:
-                            if cur.get(key):
-                                candidates.append(cur.get(key))
-                        stack.extend(cur.values())
-                    elif isinstance(cur, list):
-                        stack.extend(cur)
-            candidates.extend(extract_name_candidates_from_html(txt, result.get("final_url") or url, pid))
-            best = pick_best_product_name(candidates, pid)
-            if best and not result["name"]:
-                result["name"] = best
-            if not result["price"]:
-                pn = extract_price_from_html(txt[:120000])
-                if pn:
-                    result["price"] = format_price(pn)
-            if not result["image_url"]:
-                img = extract_image_from_any_html(txt)
-                if img:
-                    result["image_url"] = img
-            if result["name"]:
-                break
-        except Exception as e:
-            logs.append(f"SERVICE_{name}_ERR={type(e).__name__}: {e}")
-    return result
-
-
-def force_auto_product_from_link(link, product_id=""):
-    logs = []
-    result = {"name": "", "price": "", "image": "", "image_url": "", "final_url": link, "platform": detect_platform(link)}
-    session = get_scraper_session()
-    urls = [link]
-    htmls = []
-    platform = detect_platform(link)
-    logs.append(f"LINK={link}")
-    logs.append(f"PLATFORM={platform}")
-
-    try:
-        if "tokopedia" in str(link).lower():
-            td = tokopedia_super_extract(session, link, product_id, logs)
-            if td.get("final_url"):
-                urls.append(td["final_url"])
-                result["final_url"] = td["final_url"]
-            if td.get("name"):
-                result["name"] = clean_common_product_name(td["name"], product_id)
-            if td.get("price"):
-                result["price"] = td["price"]
-            if td.get("image_url"):
-                result["image_url"] = td["image_url"]
-            if td.get("html"):
-                htmls.append(td["html"])
-    except Exception as e:
-        logs.append(f"TOKPED_FORCE_ERR={type(e).__name__}: {e}")
-
-    try:
-        if "tiktok" in str(link).lower():
-            t_url, t_html = resolve_tiktok_short_link(session, link)
-            if t_url:
-                urls.append(t_url)
-                result["final_url"] = t_url
-            if t_html:
-                htmls.append(t_html)
-    except Exception as e:
-        logs.append(f"TIKTOK_FORCE_ERR={type(e).__name__}: {e}")
-
-    for referer in ["https://www.google.com/", "https://www.tokopedia.com/", "https://shopee.co.id/", "https://www.tiktok.com/"]:
-        try:
-            fu, html = session_get_text(session, link, referer=referer, timeout=35)
-            if fu:
-                urls.append(fu)
-            if html:
-                htmls.append(html)
-                urls.extend(extract_product_urls_from_text(html))
-                try:
-                    urls.extend(extract_urls_anywhere(html))
-                    urls.extend(extract_intent_and_deeplink_urls(html))
-                except Exception:
-                    pass
-        except Exception as e:
-            logs.append(f"GET_{referer}_ERR={type(e).__name__}: {e}")
-        try:
-            fu, html = curl_get_text_strong(link, referer=referer, timeout=35)
-            if fu:
-                urls.append(fu)
-            if html:
-                htmls.append(html)
-                urls.extend(extract_product_urls_from_text(html))
-                try:
-                    urls.extend(extract_urls_anywhere(html))
-                    urls.extend(extract_intent_and_deeplink_urls(html))
-                except Exception:
-                    pass
-        except Exception as e:
-            logs.append(f"CURL_{referer}_ERR={type(e).__name__}: {e}")
-
-    try:
-        if "tokopedia" in str(link).lower():
-            best_url = choose_best_product_url(urls, result.get("final_url") or link)
-        else:
-            best_url = resolve_short_link(session, link)[0] or result.get("final_url") or link
-        if best_url:
-            result["final_url"] = best_url
-            urls.insert(0, best_url)
-    except Exception:
-        pass
-
-    for u in list(dict.fromkeys([result.get("final_url"), link] + urls))[:12]:
-        if not u or not str(u).startswith("http"):
-            continue
-        for referer in ["https://www.google.com/", "https://www.tokopedia.com/"]:
-            try:
-                fu, html = session_get_text(session, u, referer=referer, timeout=35)
-                if fu:
-                    urls.append(fu)
-                    if title_from_url_slug(fu):
-                        result["final_url"] = fu
-                if html:
-                    htmls.append(html)
-            except Exception:
-                pass
-
-    combined = "\n".join(htmls)
-    logs.append(f"FORCE_URL_COUNT={len(urls)}")
-    logs.append(f"FORCE_HTML_LEN={len(combined)}")
-    logs.append(f"FORCE_FINAL_URL={result.get('final_url')}")
-
-    if not result["name"] or common_bad_product_name(result["name"], product_id):
-        candidates = []
-        for u in list(dict.fromkeys([result.get("final_url"), link] + urls)):
-            candidates.append(title_from_url_slug(u))
-        candidates.extend(extract_name_candidates_from_html(combined, result.get("final_url") or link, product_id))
-        best = pick_best_product_name(candidates, product_id)
-        if best:
-            result["name"] = best
-
-    if not result["price"]:
-        pn = extract_price_from_html(combined[:180000])
-        if pn:
-            result["price"] = format_price(pn)
-    if not result["image_url"]:
-        result["image_url"] = extract_image_from_any_html(combined)
-
-    if not result["name"] or common_bad_product_name(result["name"], product_id):
-        for u in list(dict.fromkeys([result.get("final_url"), link] + urls))[:6]:
-            md = fetch_metadata_services_all(session, u, product_id, logs)
-            if md.get("name") and not common_bad_product_name(md["name"], product_id):
-                result["name"] = md["name"]
-            if md.get("price") and not result["price"]:
-                result["price"] = md["price"]
-            if md.get("image_url") and not result["image_url"]:
-                result["image_url"] = md["image_url"]
-            if md.get("final_url"):
-                result["final_url"] = md["final_url"]
-            if result["name"] and not common_bad_product_name(result["name"], product_id):
-                break
-
-    if result.get("image_url"):
-        try:
-            result["image"] = download_image(result["image_url"], product_id)
-        except Exception as e:
-            logs.append(f"FORCE_IMAGE_DOWNLOAD_ERR={type(e).__name__}: {e}")
-            result["image"] = result["image_url"]
-
-    result["name"] = clean_common_product_name(result.get("name"), product_id)
-    logs.append(f"FORCE_NAME={result.get('name') or '-'}")
-    logs.append(f"FORCE_PRICE={result.get('price') or '-'}")
-    logs.append(f"FORCE_IMAGE={'yes' if result.get('image') or result.get('image_url') else '-'}")
-
-    try:
-        Path("auto_link_debug_last.txt").write_text("\n".join(logs), encoding="utf-8")
-    except Exception:
-        pass
-    return result
-
-
 def build_bulk_product(products, pid, raw_line, link):
     """Buat satu produk dari input bulk.
 
@@ -4664,21 +4019,11 @@ def build_bulk_product(products, pid, raw_line, link):
     cached_product = find_cached_product_by_link(products, link)
 
     if cached_product:
-        # Link sudah pernah dimasukkan. Pakai data lama dan langsung simpan
-        # nomor baru sebagai alias supaya produk tidak double.
         data = normalize_product(dict(cached_product))
-        data["platform"] = platform or data.get("platform")
+        data["platform"] = platform
         data["final_url"] = link
         data["link"] = link
         data["tiktokLink"] = link
-        cached_name = clean_title(data.get("name") or f"Produk {pid}", max_len=170)
-        cached_price = inline_price or data.get("price") or "Cek harga"
-        cached_category = data.get("category") or "Atasan"
-        show_product_before_category(pid, cached_name, cached_price, data.get("platform") or platform, link)
-        info(f"Link ini sudah ada di katalog. No {pid} akan digabung, bukan dibuat produk baru.")
-        product = build_product(pid, data, link, cached_name, cached_price, cached_category)
-        product["_merge_duplicate_link"] = True
-        return normalize_product(product)
     else:
         if RICH:
             with console.status(f"[bold yellow]Mengambil data produk no {pid} dari {platform}...[/]", spinner="dots"):
@@ -4726,37 +4071,18 @@ def build_bulk_product(products, pid, raw_line, link):
 
     data["image"] = ensure_fixed_product_image(data.get("image"), pid)
 
-    # Wajib coba paksa ambil nama dari link sebelum kategori. Ini jalur tambahan
-    # supaya Tokopedia/TikTok/Shopee shortlink tetap dicoba semaksimal mungkin.
+    # Wajib tampilkan hasil ambil data sebelum kategori, supaya user tahu produk ini apa.
     if not is_probably_product_name(name) or is_placeholder_product_name(name, pid):
-        if RICH:
-            with console.status(f"[bold yellow]Mencari nama produk otomatis dari link no {pid}...[/]", spinner="dots"):
-                forced = force_auto_product_from_link(link, pid)
-        else:
-            print(f"Mencari nama produk otomatis dari link no {pid}...")
-            forced = force_auto_product_from_link(link, pid)
+        show_product_before_category(pid, f"Produk {pid}", price, platform, link)
+        warn(
+            f"Nama produk no {pid} belum berhasil terbaca otomatis dari link.\n"
+            "Biasanya link pendek/affiliate TikTok/Tokopedia sedang membatasi data.\n"
+            "Isi nama produk dulu supaya kategori tidak salah."
+        )
+        name = input_name(inline_name or data.get("name") or f"Produk {pid}")
+        name = clean_title(name, max_len=160)
 
-        forced_name = clean_title(forced.get("name") or "", max_len=170)
-        if forced_name and is_probably_product_name(forced_name) and not is_placeholder_product_name(forced_name, pid):
-            name = forced_name
-            data["name"] = forced_name
-            if forced.get("price") and (not price or price == "Cek harga"):
-                price = forced["price"]
-            if forced.get("image") or forced.get("image_url"):
-                data["image"] = forced.get("image") or forced.get("image_url")
-            if forced.get("final_url"):
-                data["final_url"] = forced.get("final_url")
-        else:
-            show_product_before_category(pid, f"Produk {pid}", price, platform, link)
-            warn(
-                f"Nama produk no {pid} belum berhasil terbaca otomatis dari link.\n"
-                "Semua metode sudah dicoba. Cek auto_link_debug_last.txt untuk penyebabnya.\n"
-                "Agar 100% pasti, masukkan nama produk sebelum link atau pakai teks share produk."
-            )
-            name = input_name(inline_name or data.get("name") or f"Produk {pid}")
-            name = clean_title(name, max_len=160)
-
-    # Setelah nama valid, tampilkan data final sebelum kategori.
+    # Setelah nama valid, tampilkan lagi data final sebelum kategori.
     show_product_before_category(pid, name, price, platform, link)
 
     category = input_category(data.get("category"), name)

@@ -1,0 +1,35 @@
+PATCH AUTO NAMA PRODUK DARI LINK - OUTFIT KITA
+
+Yang ditambahkan:
+1. Nama produk dicoba otomatis dari link dengan beberapa metode:
+   - redirect shortlink
+   - HTML/meta title
+   - JSON produk
+   - URL asli produk
+   - metadata publik tanpa API key
+   - fallback slug URL
+2. Sebelum kategori manual, program tetap menampilkan data produk yang berhasil diambil.
+3. Kalau semua metode gagal, debug ditulis ke auto_link_debug_last.txt.
+4. Ada alat test: python cek_nama_dari_link.py
+
+Cara pasang di Termux:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_auto_nama_link_pasti.py
+unzip -o /storage/emulated/0/Download/outfit-kita-auto-nama-link-pasti-patch.zip -d .
+
+Pastikan kebutuhan lengkap:
+
+pkg install curl -y
+python -m pip install requests beautifulsoup4 cloudscraper pillow rich
+
+Test link:
+
+python cek_nama_dari_link.py
+
+Jalankan manager:
+
+python manage_products.py
+
+Catatan jujur:
+Tidak ada script yang bisa menjamin 100% membaca nama dari shortlink kalau marketplace benar-benar tidak mengirim data ke Termux dan layanan metadata publik juga diblokir. Patch ini membuat usaha otomatisnya semaksimal mungkin. Untuk hasil yang benar-benar pasti, gunakan format teks share yang menyertakan nama produk sebelum link.

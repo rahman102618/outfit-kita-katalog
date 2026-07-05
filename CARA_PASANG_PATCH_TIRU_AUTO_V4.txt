@@ -1,0 +1,23 @@
+PATCH TIRU AUTO PRODUK V4 - UI CLEAN
+
+Isi patch ini hanya mengganti manage_products.py.
+Tujuan:
+- Mengikuti cara lama V4 yang dulu kamu bilang bisa auto ambil produk.
+- Tidak lagi memaksa isi nama produk manual.
+- Script tetap mencoba ambil nama/gambar otomatis dari link.
+- Manual tetap hanya kategori, dan harga kalau tidak ada teks harga.
+- Menu Dashboard admin web tetap tidak ada.
+- UI Termux tetap versi rapi/clean.
+
+Cara pasang di Termux:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_tiru_auto_v4.py
+unzip -o /storage/emulated/0/Download/outfit-kita-tiru-auto-v4-ui-clean-patch.zip -d .
+python manage_products.py
+
+Catatan:
+Kalau link vt.tokopedia.com sedang dibatasi oleh Tokopedia, script tetap akan mencoba otomatis.
+Kalau tetap gagal, produk bisa tersimpan sebagai Produk 222, karena datanya memang tidak diberikan oleh halaman marketplace.
+Untuk cek penyebabnya:
+cat tokopedia_debug_last.txt

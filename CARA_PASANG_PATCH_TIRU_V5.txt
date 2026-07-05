@@ -1,0 +1,30 @@
+PATCH TIRU AUTO V5 + UI CLEAN
+
+Isi patch:
+- manage_products.py
+
+Perbaikan:
+1. Mengembalikan alur auto nama/gambar seperti patch nama kategori v5.
+2. Memperbaiki bug Tokopedia auto fetch yang bisa jatuh ke Produk 222.
+3. Link pendek vt.tokopedia.com dicoba resolve dulu ke link produk asli.
+4. Menu Dashboard admin web tetap dihilangkan dari Termux.
+5. Tampilan Termux tetap clean dan kategori tetap tabel.
+6. Auto upload GitHub tetap memakai sistem lama setelah tambah/edit/hapus.
+
+Cara pasang:
+
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_tiru_v5.py
+unzip -o /storage/emulated/0/Download/outfit-kita-tiru-auto-v5-ui-clean-patch.zip -d .
+python manage_products.py
+
+Pastikan library lengkap:
+
+bash setup_termux.sh
+python -m pip install requests beautifulsoup4 cloudscraper pillow rich
+
+Catatan:
+Kalau Tokopedia tetap tidak memberi nama/gambar, cek debug:
+cat tokopedia_debug_last.txt
+
+Kalau link pendek benar-benar diblokir marketplace, solusi paling stabil adalah pakai link produk asli Tokopedia, bukan vt.tokopedia.com.

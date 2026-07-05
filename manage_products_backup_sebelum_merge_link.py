@@ -895,277 +895,47 @@ def normalize_link_for_cache(value):
         return raw.lower()
 
 
-
-
-def safe_list_values(value):
-    """Ubah nilai menjadi list teks unik tanpa mengubah urutan."""
-    if value is None:
-        return []
-    if isinstance(value, list):
-        raw_items = value
-    else:
-        raw_items = [value]
-    out = []
-    seen = set()
-    for item in raw_items:
-        text = str(item or "").strip()
-        if not text:
-            continue
-        key = text.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(text)
-    return out
-
-
-def product_variants(product):
-    """Ambil daftar varian/nomor produk yang tersimpan di satu kartu produk."""
-    variants = []
-    if isinstance(product.get("_variants"), list):
-        variants.extend([v for v in product.get("_variants") if isinstance(v, dict)])
-    if isinstance(product.get("variants"), list):
-        variants.extend([v for v in product.get("variants") if isinstance(v, dict)])
-    return variants
-
-
-def product_all_ids(product):
-    """Semua nomor produk yang harus bisa dicari di katalog web."""
-    ids = []
-    for key in ["id", "_aliases", "_allIds", "searchIds"]:
-        ids.extend(safe_list_values(product.get(key)))
-    for variant in product_variants(product):
-        ids.extend(safe_list_values(variant.get("id")))
-    # unik, tapi tetap pertahankan urutan
-    out = []
-    seen = set()
-    for item in ids:
-        key = str(item).strip().lower()
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        out.append(str(item).strip())
-    return out
-
-
-def product_link_keys(product):
-    """Semua link yang dianggap mewakili produk yang sama."""
-    keys = []
-    link_fields = [
-        "link", "tiktokLink", "productLink", "affiliateLink",
-        "final_url", "finalUrl", "url", "source_url", "sourceUrl",
-    ]
-    for field in link_fields:
-        key = normalize_link_for_cache(product.get(field, ""))
-        if key:
-            keys.append(key)
-
-    for raw_link in safe_list_values(product.get("_links")):
-        key = normalize_link_for_cache(raw_link)
-        if key:
-            keys.append(key)
-
-    for variant in product_variants(product):
-        for field in link_fields:
-            key = normalize_link_for_cache(variant.get(field, ""))
-            if key:
-                keys.append(key)
-
-    out = []
-    seen = set()
-    for key in keys:
-        if key and key not in seen:
-            seen.add(key)
-            out.append(key)
-    return out
-
-
-def make_product_variant(product):
-    """Simpan snapshot produk sebagai varian supaya nomor lama/baru tetap bisa dicari."""
-    keep_fields = [
-        "id", "name", "price", "category", "type", "badge", "image", "link",
-        "tiktokLink", "platform", "tags", "subtitle", "desc", "size", "colors"
-    ]
-    variant = {}
-    for field in keep_fields:
-        if field in product and product.get(field) not in [None, ""]:
-            variant[field] = product.get(field)
-    return variant
-
-
-def unique_variants_py(variants):
-    """Hilangkan varian yang benar-benar sama, tapi pertahankan nomor berbeda."""
-    out = []
-    seen = set()
-    for variant in variants:
-        if not isinstance(variant, dict):
-            continue
-        key = "|".join([
-            str(variant.get("id", "")).strip().lower(),
-            normalize_link_for_cache(variant.get("link") or variant.get("tiktokLink") or ""),
-            clean_text(variant.get("name", "")).lower(),
-            clean_text(variant.get("price", "")).lower(),
-        ])
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(variant)
-    return out
-
-
-def merge_same_link_product(existing, incoming):
-    """Gabungkan produk dengan link sama agar tidak double di JSON/katalog.
-
-    Hasil:
-    - hanya satu kartu produk utama
-    - semua nomor produk disimpan di _aliases/_allIds/searchIds
-    - nomor lama/baru tetap bisa dicari di website
-    - nama utama tetap satu nama saja
-    """
-    existing = normalize_product(dict(existing or {}))
-    incoming = normalize_product(dict(incoming or {}))
-
-    existing_variant = make_product_variant(existing)
-    incoming_variant = make_product_variant(incoming)
-
-    aliases = product_all_ids(existing)
-    for pid in product_all_ids(incoming):
-        if pid.lower() not in {x.lower() for x in aliases}:
-            aliases.append(pid)
-
-    # Simpan semua varian untuk pencarian nomor di katalog web.
-    variants = []
-    variants.extend(product_variants(existing))
-    if existing_variant.get("id"):
-        variants.append(existing_variant)
-    if incoming_variant.get("id"):
-        variants.append(incoming_variant)
-    variants = unique_variants_py(variants)
-
-    # Nama utama: jangan berubah kalau nama lama sudah bagus.
-    old_name = clean_title(existing.get("name") or "")
-    new_name = clean_title(incoming.get("name") or "")
-    old_placeholder = is_placeholder_product_name(old_name, existing.get("id"))
-    new_valid = new_name and is_probably_product_name(new_name) and not is_placeholder_product_name(new_name, incoming.get("id"))
-    if old_placeholder and new_valid:
-        existing["name"] = new_name
-
-    # Harga: update kalau harga baru lebih jelas.
-    if incoming.get("price") and incoming.get("price") != "Cek harga":
-        existing["price"] = incoming.get("price")
-
-    # Kategori: pertahankan kategori lama, kecuali kategori lama kosong/default dan yang baru lebih jelas.
-    old_cat = clean_category_name(existing.get("category") or "")
-    new_cat = clean_category_name(incoming.get("category") or "")
-    if (not old_cat or old_cat.lower() == "atasan") and new_cat:
-        existing["category"] = new_cat
-        existing["type"] = new_cat
-        existing["badge"] = new_cat
-
-    # Gambar utama: pertahankan lama kalau sudah ada, pakai baru kalau lama masih fallback.
-    old_img = str(existing.get("image") or "")
-    new_img = str(incoming.get("image") or "")
-    if new_img and (not old_img or "no-image" in old_img.lower()):
-        existing["image"] = new_img
-
-    # Link utama tetap link pertama, tapi semua link disimpan agar duplicate terdeteksi.
-    links = []
-    for p in [existing, incoming]:
-        for raw in [p.get("link"), p.get("tiktokLink"), p.get("productLink"), p.get("affiliateLink"), p.get("final_url")]:
-            raw = str(raw or "").strip()
-            if raw and raw not in links:
-                links.append(raw)
-    if links:
-        existing["link"] = existing.get("link") or links[0]
-        existing["tiktokLink"] = existing.get("tiktokLink") or existing["link"]
-        existing["_links"] = links
-
-    existing["_aliases"] = aliases
-    existing["_allIds"] = aliases
-    existing["searchIds"] = aliases
-    existing["_variants"] = variants
-    existing["tags"] = existing.get("tags") or [existing.get("category", "Atasan"), existing.get("platform", "Affiliate")]
-    return normalize_product(existing)
-
 def find_cached_product_by_link(products, link):
     """Cari produk lama dari link yang pernah dimasukkan.
 
-    Sekarang juga membaca _links/_variants supaya link yang sama otomatis
-    digabung dan tidak membuat kartu produk double.
+    Dipakai supaya kalau user memasukkan link yang sama, data lama
+    seperti nama, harga, kategori, dan gambar langsung dipakai tanpa
+    bertanya lagi.
     """
     target_key = normalize_link_for_cache(link)
     if not target_key:
         return None
 
     for p in products:
-        if target_key in product_link_keys(p):
-            return p
+        keys = [
+            p.get("link", ""),
+            p.get("tiktokLink", ""),
+            p.get("productLink", ""),
+            p.get("affiliateLink", ""),
+        ]
+        for old_link in keys:
+            if old_link and normalize_link_for_cache(old_link) == target_key:
+                return p
     return None
 
 
 def save_or_replace_product(products, product):
-    """Simpan produk.
-
-    Aturan:
-    1. Jika ID sama, update produk.
-    2. Jika link sama, gabungkan ke produk lama, bukan tambah kartu baru.
-    3. Nomor produk baru tetap disimpan sebagai alias/search id supaya katalog web
-       tetap bisa menampilkan produk saat user mencari nomor itu.
-    """
-    product = normalize_product(product)
-    incoming_links = set(product_link_keys(product))
-
-    # 1) Kalau link sama dengan produk lama, gabungkan.
-    if incoming_links:
-        for i, old in enumerate(products):
-            old_links = set(product_link_keys(old))
-            if old_links and incoming_links.intersection(old_links):
-                old_id = str(old.get("id", "")).strip()
-                new_id = str(product.get("id", "")).strip()
-                products[i] = merge_same_link_product(old, product)
-                if new_id and new_id != old_id:
-                    info(f"Link produk sudah ada. No {new_id} digabung ke produk no {old_id}.")
-                save_products_sorted(products)
-                return products
-
-    # 2) Kalau ID sama, replace/update.
+    """Simpan produk. Kalau ID sama, replace; kalau tidak, tambah baru."""
+    replaced = False
     for i, old in enumerate(products):
         if str(old.get("id")) == str(product.get("id")):
-            products[i] = merge_same_link_product(old, product)
-            save_products_sorted(products)
-            return products
-
-    # 3) Produk baru.
-    products.append(product)
-    save_products_sorted(products)
-    return products
-
-
-def save_products_sorted(products):
-    """Sortir lalu rapikan data supaya link yang sama tinggal satu produk."""
-    compacted = []
-    for item in products:
-        item = normalize_product(item)
-        item_links = set(product_link_keys(item))
-        merged = False
-        if item_links:
-            for i, old in enumerate(compacted):
-                old_links = set(product_link_keys(old))
-                if old_links and item_links.intersection(old_links):
-                    compacted[i] = merge_same_link_product(old, item)
-                    merged = True
-                    break
-        if not merged:
-            compacted.append(item)
+            products[i] = product
+            replaced = True
+            break
+    if not replaced:
+        products.append(product)
 
     def sort_key(x):
-        value = str(x.get("id", ""))
-        digits = only_digits(value)
-        return int(digits or 999999)
+        return int(only_digits(x.get("id", "")) or 999999)
 
-    compacted.sort(key=sort_key)
-    products[:] = compacted
+    products.sort(key=sort_key)
     save_products(products)
+    return products
 
 
 def clone_cached_product(cached_product, new_id, new_link=None):
@@ -4664,21 +4434,11 @@ def build_bulk_product(products, pid, raw_line, link):
     cached_product = find_cached_product_by_link(products, link)
 
     if cached_product:
-        # Link sudah pernah dimasukkan. Pakai data lama dan langsung simpan
-        # nomor baru sebagai alias supaya produk tidak double.
         data = normalize_product(dict(cached_product))
-        data["platform"] = platform or data.get("platform")
+        data["platform"] = platform
         data["final_url"] = link
         data["link"] = link
         data["tiktokLink"] = link
-        cached_name = clean_title(data.get("name") or f"Produk {pid}", max_len=170)
-        cached_price = inline_price or data.get("price") or "Cek harga"
-        cached_category = data.get("category") or "Atasan"
-        show_product_before_category(pid, cached_name, cached_price, data.get("platform") or platform, link)
-        info(f"Link ini sudah ada di katalog. No {pid} akan digabung, bukan dibuat produk baru.")
-        product = build_product(pid, data, link, cached_name, cached_price, cached_category)
-        product["_merge_duplicate_link"] = True
-        return normalize_product(product)
     else:
         if RICH:
             with console.status(f"[bold yellow]Mengambil data produk no {pid} dari {platform}...[/]", spinner="dots"):
