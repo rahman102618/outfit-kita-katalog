@@ -1,0 +1,16 @@
+PATCH: Lihat Produk Semua + Nama Satu Baris + Hapus Produk Semua
+
+Yang berubah:
+1. Menu Lihat daftar produk langsung menampilkan semua produk.
+2. Nama produk dipaksa satu baris.
+   Kalau terlalu panjang otomatis jadi ...
+3. Tidak ada pagination 25 item lagi.
+4. Menu Hapus produk juga langsung menampilkan semua produk.
+5. Setelah semua tampil, tinggal ketik nomor produk yang mau dihapus.
+6. Hapus produk tetap bisa berdasarkan nomor utama atau nomor alias.
+
+Cara pasang:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_list_all.py
+unzip -o /storage/emulated/0/Download/outfit-kita-list-all-oneline-patch.zip -d .
+python manage_products.py

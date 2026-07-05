@@ -1,0 +1,26 @@
+PATCH: UI Awal Lebih Rapi + Hapus Produk Rapi + Tambah Produk Lebih Cepat
+
+Yang berubah:
+1. Tampilan awal/header dibuat lebih kecil dan lebih rapi.
+2. Hitungan produk diperbaiki:
+   - "No produk" menghitung semua nomor, termasuk 01 dan B01.
+   - "Kartu" menghitung jumlah kartu unik di katalog.
+3. Tampilan menu dibuat lebih pas di layar Termux.
+4. Tampilan Hapus Produk dibuat lebih aman:
+   - cari produk dulu
+   - tampilkan tabel hasil
+   - tampilkan detail sebelum hapus
+   - bisa hapus berdasarkan nomor utama atau nomor alias
+5. Tambah Produk dipercepat:
+   - kalau nama/harga sudah ada di teks input, tidak perlu scraping link dulu
+   - sangat membantu untuk Shopee share text dan input massal
+
+Cara pasang:
+cd /storage/emulated/0/Termux/outfit-kita-katalog-main
+cp manage_products.py manage_products_backup_sebelum_ui_speed.py
+unzip -o /storage/emulated/0/Download/outfit-kita-ui-speed-patch.zip -d .
+python manage_products.py
+
+Catatan:
+Patch ini hanya mengganti manage_products.py.
+Data produk, gambar, products.json, dan script.js tidak disentuh.

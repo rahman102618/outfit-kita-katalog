@@ -4136,53 +4136,55 @@ def upload_github(message):
     return False
 
 def products_table(products):
-    """Tabel produk rapi: semua produk tampil, nama satu baris, kalau panjang jadi ..."""
     rows = [normalize_product(p) for p in products]
-
     if RICH:
         table = Table(
             title=f"Daftar Produk ({len(rows)} item)",
             box=box.ROUNDED,
             border_style="cyan",
             show_lines=False,
-            expand=True,
         )
         table.add_column("No", justify="center", style="white", width=6, no_wrap=True)
-        table.add_column("Nama Produk", style="white", width=38, no_wrap=True, overflow="ellipsis")
-        table.add_column("Kategori", style="cyan", width=13, no_wrap=True, overflow="ellipsis")
-        table.add_column("Harga", style="yellow", width=13, no_wrap=True, overflow="ellipsis")
-        table.add_column("Platform", style="white", width=10, no_wrap=True, overflow="ellipsis")
+        table.add_column("Nama Produk", style="white", min_width=22, ratio=3)
+        table.add_column("Kategori", style="cyan", width=14)
+        table.add_column("Harga", style="yellow", width=14)
+        table.add_column("Platform", style="white", width=10)
 
         for p in rows:
-            name = clean_text(p.get("name", ""))
             table.add_row(
                 str(p.get("id", "")),
-                name,
-                clean_text(p.get("category", "")),
-                clean_text(p.get("price", "")),
-                clean_text(p.get("platform", "")),
+                short(p.get("name", ""), 48),
+                short(p.get("category", ""), 13),
+                short(p.get("price", ""), 13),
+                short(p.get("platform", ""), 9),
             )
         console.print(table)
     else:
         width = 98
-        print("\n" + term_color("╔" + "═" * (width - 2) + "╗", "cyan", bold=True))
+        border = "cyan"
+        print("\n" + term_color("╔" + "═" * (width - 2) + "╗", border, bold=True))
         title = f" DAFTAR PRODUK ({len(rows)} ITEM) "
-        print(term_color("║", "cyan", bold=True) + term_color(title.center(width - 2), "white", bold=True) + term_color("║", "cyan", bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", "cyan", bold=True))
-        header = f"{'NO':<6} {'NAMA PRODUK':<42} {'KATEGORI':<13} {'HARGA':<13} {'PLATFORM':<10}"
-        print(term_color("║ ", "cyan", bold=True) + term_color(header[:width-4].ljust(width-4), "white", bold=True) + term_color(" ║", "cyan", bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", "cyan", bold=True))
-
+        print(term_color("║", border, bold=True) + term_color(title.center(width - 2), "white", bold=True) + term_color("║", border, bold=True))
+        print(term_color("╠" + "═" * (width - 2) + "╣", border, bold=True))
+        header = f"{'NO':<7}{'KATEGORI':<15}{'HARGA':<15}{'PLATFORM':<11}NAMA PRODUK"
+        print(term_color("║ ", border, bold=True) + term_color(header.ljust(width - 4), "gray", bold=True) + term_color(" ║", border, bold=True))
+        print(term_color("╟" + "─" * (width - 2) + "╢", border, bold=True))
         for p in rows:
             no = short(str(p.get("id", "")), 6)
-            nama = short(clean_text(p.get("name", "")), 42)
-            kategori = short(clean_text(p.get("category", "")), 13)
-            harga = short(clean_text(p.get("price", "")), 13)
-            platform = short(clean_text(p.get("platform", "")), 10)
-            row = f"{no:<6} {nama:<42} {kategori:<13} {harga:<13} {platform:<10}"
-            print(term_color("║ ", "cyan", bold=True) + row[:width-4].ljust(width-4) + term_color(" ║", "cyan", bold=True))
-
-        print(term_color("╚" + "═" * (width - 2) + "╝", "cyan", bold=True))
+            kategori = short(str(p.get("category", "")), 14)
+            harga = short(str(p.get("price", "")), 14)
+            platform = short(str(p.get("platform", "")), 10)
+            nama = short(str(p.get("name", "")), 45)
+            row = (
+                term_color(f"{no:<7}", "white", bold=True)
+                + term_color(f"{kategori:<15}", "cyan")
+                + term_color(f"{harga:<15}", "yellow", bold=True)
+                + term_color(f"{platform:<11}", "white")
+                + term_color(nama, "white")
+            )
+            plain_len = 7 + 15 + 15 + 11 + len(nama)
+            print(term_color("║ ", border, bold=True) + row + " " * max(0, width - 4 - plain_len) + term_color(" ║", border, bold=True))
+        print(term_color("╚" + "═" * (width - 2) + "╝", border, bold=True))
 
 
 def product_summary(p, title="Detail Produk"):
@@ -4997,12 +4999,96 @@ def list_products():
         pause()
         return
 
-    products_table(products)
-    info(
-        f"Semua produk ditampilkan: {len(products)} kartu unik.\n"
-        "Nama produk dibuat satu baris; kalau terlalu panjang otomatis menjadi ..."
-    )
+    if RICH:
+        info(
+            "Ketik nomor produk, nama, kategori, atau platform.\n"
+            "Kosongkan untuk menampilkan semua produk."
+        )
+    else:
+        print(term_color("\nCari produk berdasarkan nomor, nama, kategori, atau platform.", "white"))
+        print(term_color("Kosongkan lalu ENTER untuk menampilkan semua produk.", "gray"))
+    keyword = ask("Cari produk", default="").strip().lower()
+
+    if keyword:
+        filtered = []
+        for raw in products:
+            p = normalize_product(raw)
+            haystack = " ".join([
+                str(p.get("id", "")),
+                str(p.get("name", "")),
+                str(p.get("category", "")),
+                str(p.get("price", "")),
+                str(p.get("platform", "")),
+            ]).lower()
+            if keyword in haystack:
+                filtered.append(p)
+    else:
+        filtered = products
+
+    if not filtered:
+        warn("Produk tidak ditemukan.")
+        pause()
+        return
+
+    per_page = 25
+    page = 0
+    while True:
+        clear()
+        show_header()
+        total = len(filtered)
+        total_pages = max(1, (total + per_page - 1) // per_page)
+        page = max(0, min(page, total_pages - 1))
+        chunk = filtered[page * per_page:(page + 1) * per_page]
+        products_table(chunk)
+        if RICH:
+            print(f"\nTotal: {total} produk | Halaman {page + 1}/{total_pages}")
+        else:
+            info_line = f"Total: {total} produk  •  Halaman {page + 1}/{total_pages}"
+            print("\n" + term_color(info_line, "cyan", bold=True))
+        if total_pages == 1:
+            break
+        cmd = ask("n=lanjut, p=sebelumnya, q=kembali", default="q").strip().lower()
+        if cmd == "n":
+            page += 1
+        elif cmd == "p":
+            page -= 1
+        else:
+            return
     pause()
+
+
+
+def product_search_text_for_manager(product):
+    product = normalize_product(product)
+    ids = []
+    try:
+        ids = product_all_ids(product)
+    except Exception:
+        ids = [product.get("id", "")]
+    parts = [
+        " ".join(ids),
+        str(product.get("name", "")),
+        str(product.get("category", "")),
+        str(product.get("price", "")),
+        str(product.get("platform", "")),
+        str(product.get("link", "")),
+    ]
+    return " ".join(parts).lower()
+
+
+def find_product_index_by_any_id(products, pid):
+    target = str(pid or "").strip().lower()
+    if not target:
+        return None
+    for i, product in enumerate(products):
+        ids = []
+        try:
+            ids = product_all_ids(product)
+        except Exception:
+            ids = [product.get("id", "")]
+        if any(str(x).strip().lower() == target for x in ids):
+            return i
+    return None
 
 
 def delete_product():
@@ -5015,40 +5101,45 @@ def delete_product():
         return
 
     panel(
-        "Semua produk ditampilkan di bawah.\n"
-        "Ketik nomor produk yang mau dihapus. Bisa nomor utama atau nomor alias.",
+        "Cari dulu produk yang mau dihapus agar tidak salah pilih.\n"
+        "Bisa ketik nomor produk, nama, kategori, atau platform.",
         "Hapus Produk",
         "cyan",
     )
 
-    products_table(products)
+    keyword = ask("Cari produk", default="").strip().lower()
+    if keyword:
+        filtered = [p for p in products if keyword in product_search_text_for_manager(p)]
+    else:
+        filtered = products[:30]
+        if len(products) > 30:
+            info("Menampilkan 30 produk pertama. Ketik kata pencarian agar hasil lebih spesifik.")
+
+    if not filtered:
+        warn("Produk tidak ditemukan.")
+        pause()
+        return
+
+    products_table(filtered[:40])
+    if len(filtered) > 40:
+        info(f"Ada {len(filtered)} hasil. Ditampilkan 40 teratas agar layar tetap rapi.")
 
     pid = ask("Masukkan no produk yang akan dihapus", default="").strip()
-    idx = find_product_index_by_any_id(products, pid) if "find_product_index_by_any_id" in globals() else None
+    idx = find_product_index_by_any_id(products, pid)
     if idx is None:
-        for i, product in enumerate(products):
-            if str(product.get("id", "")).strip().lower() == pid.lower():
-                idx = i
-                break
-
-    if idx is None:
-        err("Produk tidak ditemukan. Pastikan nomor produk sesuai tabel.")
+        err("Produk tidak ditemukan. Pastikan nomor produk sesuai.")
         pause()
         return
 
     p = normalize_product(products[idx])
-    try:
-        ids_text = ", ".join(product_all_ids(p))
-    except Exception:
-        ids_text = p.get("id", "")
-
+    ids_text = ", ".join(product_all_ids(p)) if "product_all_ids" in globals() else p.get("id", "")
     product_summary(p, "Konfirmasi Hapus Produk")
     panel(
         f"No terkait : {ids_text}\n"
         f"Nama       : {short(p.get('name', ''), 80)}\n"
         f"Harga      : {p.get('price', '')}\n"
         f"Kategori   : {p.get('category', '')}\n\n"
-        "Produk yang dihapus tidak tampil lagi di katalog.",
+        "Produk yang sudah dihapus tidak tampil lagi di katalog.",
         "Cek Sebelum Hapus",
         "yellow",
     )
