@@ -1741,7 +1741,58 @@
     "size": "",
     "colors": [],
     "badge": "Celana Jeans",
-    "desc": ""
+    "desc": "",
+    "_links": [
+      "https://vt.tokopedia.com/t/ZS9Mhho7hbMDH-9PghQ/"
+    ],
+    "_aliases": [
+      "A16",
+      "A15A15"
+    ],
+    "_allIds": [
+      "A16",
+      "A15A15"
+    ],
+    "searchIds": [
+      "A16",
+      "A15A15"
+    ],
+    "_variants": [
+      {
+        "id": "A16",
+        "name": "Celana jeans pria panjang snow black celana jeans pria Korean style original loose celana jeans oversize Denim Santai Straight Hitam Baggy Nyaman Stretch Sli...",
+        "price": "Rp90.899",
+        "category": "Celana Jeans",
+        "type": "Celana Jeans",
+        "badge": "Celana Jeans",
+        "image": "public/assets/A16.jpg",
+        "link": "https://vt.tokopedia.com/t/ZS9Mhho7hbMDH-9PghQ/",
+        "tiktokLink": "https://vt.tokopedia.com/t/ZS9Mhho7hbMDH-9PghQ/",
+        "platform": "Tokopedia",
+        "tags": [
+          "Celana Jeans",
+          "Tokopedia"
+        ],
+        "colors": []
+      },
+      {
+        "id": "A15A15",
+        "name": "Celana jeans pria panjang snow black celana jeans pria Korean style original loose celana jeans oversize Denim Santai Straight Hitam Baggy Nyaman Stretch Sli...",
+        "price": "Rp90.899",
+        "category": "Celana Jeans",
+        "type": "Celana Jeans",
+        "badge": "Celana Jeans",
+        "image": "public/assets/A16.jpg",
+        "link": "https://vt.tokopedia.com/t/ZS9Mhho7hbMDH-9PghQ/",
+        "tiktokLink": "https://vt.tokopedia.com/t/ZS9Mhho7hbMDH-9PghQ/",
+        "platform": "Tokopedia",
+        "tags": [
+          "Celana Jeans",
+          "Tokopedia"
+        ],
+        "colors": []
+      }
+    ]
   },
   {
     "id": "17",
