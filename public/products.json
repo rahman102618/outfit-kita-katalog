@@ -1638,7 +1638,38 @@
     "size": "",
     "colors": [],
     "badge": "Atasan",
-    "desc": ""
+    "desc": "",
+    "_links": [
+      "https://vt.tokopedia.com/t/ZS9Mhhy7Ys6yC-5JrN3/"
+    ],
+    "_aliases": [
+      "A15"
+    ],
+    "_allIds": [
+      "A15"
+    ],
+    "searchIds": [
+      "A15"
+    ],
+    "_variants": [
+      {
+        "id": "A15",
+        "name": "harga76. 631",
+        "price": "Rp76.361",
+        "category": "Atasan",
+        "type": "Atasan",
+        "badge": "Atasan",
+        "image": "public/assets/A15.jpg",
+        "link": "https://vt.tokopedia.com/t/ZS9Mhhy7Ys6yC-5JrN3/",
+        "tiktokLink": "https://vt.tokopedia.com/t/ZS9Mhhy7Ys6yC-5JrN3/",
+        "platform": "Tokopedia",
+        "tags": [
+          "Atasan",
+          "Tokopedia"
+        ],
+        "colors": []
+      }
+    ]
   },
   {
     "id": "16",
