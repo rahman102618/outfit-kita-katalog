@@ -16,7 +16,7 @@ import subprocess
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import urlparse, unquote, parse_qs, urlencode, quote
+from urllib.parse import urlparse, unquote, parse_qs, urlencode
 from html import unescape
 from io import BytesIO
 
@@ -76,109 +76,6 @@ HEADERS = {
 
 console = Console() if RICH else None
 
-# Warna ANSI untuk Termux. Ini membuat tampilan tetap berwarna walau library rich belum terpasang.
-ANSI = {
-    "reset": "\033[0m",
-    "bold": "\033[1m",
-    "dim": "\033[2m",
-    "red": "\033[91m",
-    "green": "\033[92m",
-    "yellow": "\033[93m",
-    "blue": "\033[94m",
-    "magenta": "\033[95m",
-    "cyan": "\033[96m",
-    "white": "\033[97m",
-    "gray": "\033[90m",
-}
-
-COLOR_MAP = {
-    "red": "red",
-    "green": "green",
-    "yellow": "yellow",
-    "cyan": "cyan",
-    "blue": "blue",
-    "magenta": "magenta",
-    "white": "white",
-    "grey": "gray",
-    "gray": "gray",
-    "bright_yellow": "yellow",
-    "bright_green": "green",
-    "bright_cyan": "cyan",
-    "bright_red": "red",
-}
-
-
-def strip_rich_markup(text):
-    """Hilangkan markup Rich saat mode Termux biasa dipakai."""
-    text = str(text or "")
-    text = re.sub(r"\[/?(?:bold|dim|italic|underline|reverse|blink)(?:\s+[^\]]+)?\]", "", text)
-    text = re.sub(r"\[/?(?:red|green|yellow|cyan|blue|magenta|white|black|bright_[a-z_]+)(?:\s+[^\]]+)?\]", "", text)
-    text = re.sub(r"\[/\]", "", text)
-    return text
-
-
-def term_color(text, color="white", bold=False, dim=False):
-    text = strip_rich_markup(text)
-    color = COLOR_MAP.get(str(color).lower(), str(color).lower())
-    code = ANSI.get(color, ANSI["white"])
-    prefix = ""
-    if bold:
-        prefix += ANSI["bold"]
-    if dim:
-        prefix += ANSI["dim"]
-    return f"{prefix}{code}{text}{ANSI['reset']}"
-
-
-def colored_by_style(text, style=None):
-    if not style:
-        return strip_rich_markup(text)
-    style = str(style).lower()
-    color = "white"
-    for key, value in COLOR_MAP.items():
-        if key in style:
-            color = value
-            break
-    return term_color(text, color=color, bold="bold" in style, dim="dim" in style)
-
-
-def box_line(width=72, color="yellow", top=False, bottom=False):
-    if top:
-        line = "╔" + "═" * (width - 2) + "╗"
-    elif bottom:
-        line = "╚" + "═" * (width - 2) + "╝"
-    else:
-        line = "─" * width
-    return term_color(line, color=color, bold=True)
-
-
-def box_center(text, width=72, color="white", bold=False, dim=False, border_color="yellow"):
-    inner = strip_rich_markup(text).center(width - 2)
-    return term_color("║", border_color, bold=True) + term_color(inner, color, bold=bold, dim=dim) + term_color("║", border_color, bold=True)
-
-
-def box_text(text, width=72, color="white", bold=False, border_color="cyan"):
-    clean = strip_rich_markup(text)
-    out_lines = []
-    for raw_line in clean.splitlines() or [""]:
-        words = raw_line.split()
-        if not words:
-            out_lines.append("")
-            continue
-        line = ""
-        for word in words:
-            if len(line) + len(word) + 1 > width - 4:
-                out_lines.append(line.rstrip())
-                line = word + " "
-            else:
-                line += word + " "
-        if line.strip():
-            out_lines.append(line.rstrip())
-    rendered = []
-    for line in out_lines:
-        padded = " " + line.ljust(width - 4) + " "
-        rendered.append(term_color("│", border_color, bold=True) + term_color(padded, color, bold=bold) + term_color("│", border_color, bold=True))
-    return "\n".join(rendered)
-
 
 def clear():
     os.system("clear")
@@ -188,25 +85,29 @@ def printx(value="", style=None):
     if RICH:
         console.print(value, style=style)
     else:
-        print(colored_by_style(value, style))
+        print(value)
 
 
 def ask(label, default=None):
-    if RICH:
-        return Prompt.ask(label, default=default)
-    clean_label = strip_rich_markup(label)
-    default_text = f" [{default}]" if default is not None else ""
-    prompt = term_color(clean_label, "cyan", bold=True) + term_color(default_text + ": ", "white")
-    value = input(prompt).strip()
+    try:
+        if RICH:
+            value = Prompt.ask(label, default=str(default) if default is not None else "")
+        else:
+            value = input(f"{label}{' [' + str(default) + ']' if default is not None else ''}: ")
+    except (EOFError, KeyboardInterrupt):
+        value = default if default is not None else ""
+
+    if value is None:
+        value = default if default is not None else ""
+
+    value = str(value).strip()
     return value if value else (str(default) if default is not None else "")
 
 
 def ask_yes(label, default=True):
     if RICH:
         return Confirm.ask(label, default=default)
-    clean_label = strip_rich_markup(label)
-    pilihan = "Y/n" if default else "y/N"
-    value = input(term_color(clean_label, "cyan", bold=True) + term_color(f" ({pilihan}): ", "white")).strip().lower()
+    value = input(f"{label} ({'Y/n' if default else 'y/N'}): ").strip().lower()
     if not value:
         return default
     return value == "y"
@@ -220,14 +121,11 @@ def panel(msg, title="INFO", style="cyan"):
     if RICH:
         console.print(Panel(msg, title=title, border_style=style, box=box.ROUNDED))
     else:
-        width = 72
-        color = COLOR_MAP.get(str(style).lower(), "cyan")
-        print("\n" + box_line(width, color=color, top=True))
+        print("\n" + "=" * 60)
         if title:
-            print(box_center(str(title).upper(), width, color=color, bold=True, border_color=color))
-            print(term_color("├" + "─" * (width - 2) + "┤", color, bold=True))
-        print(box_text(msg, width, color="white", border_color=color))
-        print(box_line(width, color=color, bottom=True))
+            print(title)
+        print(msg)
+        print("=" * 60)
 
 
 def ok(msg):
@@ -257,68 +155,26 @@ def git_status_text():
         return "Repo Git"
 
 
-def count_all_product_numbers(products):
-    """Hitung total nomor produk.
-
-    Produk unik bisa berisi beberapa nomor/alias, misalnya 01 dan B01.
-    Di tampilan awal, semua nomor itu dihitung sebagai produk.
-    """
-    total = 0
-    for p in products or []:
-        ids = []
-        for key in ["id", "_aliases", "_allIds", "searchIds"]:
-            value = p.get(key) if isinstance(p, dict) else None
-            if isinstance(value, list):
-                ids.extend([str(x).strip() for x in value if str(x).strip()])
-            elif value not in [None, ""]:
-                ids.append(str(value).strip())
-
-        for key in ["_variants", "variants"]:
-            variants = p.get(key) if isinstance(p, dict) else None
-            if isinstance(variants, list):
-                for item in variants:
-                    if isinstance(item, dict) and item.get("id"):
-                        ids.append(str(item.get("id")).strip())
-
-        seen = set()
-        unique_ids = []
-        for item in ids:
-            low = item.lower()
-            if low and low not in seen:
-                seen.add(low)
-                unique_ids.append(item)
-        total += max(1, len(unique_ids))
-    return total
-
-
 def show_header():
-    """Header Termux clean: lebih kecil, rapi, dan tidak memenuhi layar."""
-    meta = datetime.now().strftime("%Y-%m-%d %H:%M")
     if RICH:
-        title = Text("OUTFIT KITA MANAGER", style="bold white")
-        subtitle = Text("Kelola Produk Katalog", style="cyan")
-        meta_text = Text(meta, style="dim white")
-        body = Table.grid(padding=(0, 1))
-        body.add_row(title)
-        body.add_row(subtitle)
-        body.add_row(meta_text)
+        title = Text(f"{APP_NAME} PRODUCT MANAGER", style="bold white")
+        subtitle = Text("Bulk Link Range • Harga Teks • Kategori Lebih Peka", style="bold yellow")
+        meta = Text(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} | {git_status_text()}", style="dim white")
         console.print(
             Panel(
-                body,
-                border_style="cyan",
-                box=box.ROUNDED,
-                padding=(0, 2),
-                width=54,
+                Align.center(Text.assemble(title, "\n", subtitle, "\n", meta)),
+                title="[bold black on yellow] TERMUX KATALOG [/]",
+                border_style="bright_yellow",
+                box=box.DOUBLE_EDGE,
+                padding=(1, 2),
             )
         )
     else:
-        width = 54
-        border = "cyan"
-        print(box_line(width, color=border, top=True))
-        print(box_center("OUTFIT KITA MANAGER", width, color="white", bold=True, border_color=border))
-        print(box_center("Kelola Produk Katalog", width, color="cyan", bold=True, border_color=border))
-        print(box_center(meta, width, color="gray", bold=False, border_color=border))
-        print(box_line(width, color=border, bottom=True))
+        print("=" * 60)
+        print(f"{APP_NAME} PRODUCT MANAGER")
+        print("Bulk Link Range • Harga Teks • Kategori Lebih Peka")
+        print(datetime.now().strftime("%Y-%m-%d %H:%M"), "|", git_status_text())
+        print("=" * 60)
 
 
 def show_menu():
@@ -327,58 +183,22 @@ def show_menu():
         ("2", "Edit produk manual"),
         ("3", "Lihat daftar produk"),
         ("4", "Hapus produk"),
-        ("5", "Preview katalog"),
+        ("5", "Preview website lokal"),
         ("6", "Sinkron GitHub"),
-        ("7", "Setup Shopee API"),
+        ("7", "Setup Shopee API resmi"),
         ("8", "Kelola kategori"),
         ("0", "Keluar"),
     ]
 
-    try:
-        raw_products = load_products()
-        total_nomor = count_all_product_numbers(raw_products)
-        total_kartu = len(raw_products)
-        total_kategori = len(get_categories())
-    except Exception:
-        total_nomor = 0
-        total_kartu = 0
-        total_kategori = 0
-
     if RICH:
-        table = Table.grid(padding=(0, 2))
+        grid = Table.grid(padding=(0, 2))
         for no, label in items:
-            table.add_row(f"[bold white]{no}[/]", f"[white]{label}[/]")
-        footer = Text(
-            f"No produk: {total_nomor}  •  Kartu: {total_kartu}  •  Kategori: {total_kategori}",
-            style="dim white",
-        )
-        content = Table.grid()
-        content.add_row(footer)
-        content.add_row(table)
-        console.print(Panel(content, title="[bold cyan]Menu Utama[/]", border_style="cyan", box=box.ROUNDED, padding=(1, 2)))
+            no_style = "bold red" if no == "0" else "bold cyan"
+            grid.add_row(f"[{no_style}]{no}[/]", f"[bold white]{label}[/]")
+        console.print(Panel(grid, title="[bold green]MENU UTAMA[/]", border_style="green", box=box.ROUNDED, padding=(1, 2)))
     else:
-        width = 68
-        border = "cyan"
-        print()
-        print(term_color("╔" + "═" * (width - 2) + "╗", border, bold=True))
-        print(term_color("║", border, bold=True) + term_color(" MENU UTAMA ".center(width - 2), "white", bold=True) + term_color("║", border, bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", border, bold=True))
-        stats = f"No produk: {total_nomor}  •  Kartu: {total_kartu}  •  Kategori: {total_kategori}"
-        print(term_color("║", border, bold=True) + term_color(stats.ljust(width - 2), "gray") + term_color("║", border, bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", border, bold=True))
         for no, label in items:
-            row_text = f"  {no}.  {label}"
-            raw_len = len(row_text)
-            padding = " " * max(0, width - 2 - raw_len)
-            number_color = "gray" if no == "0" else "white"
-            print(
-                term_color("║", border, bold=True)
-                + term_color(f"  {no}", number_color, bold=False)
-                + term_color(f".  {label}", "white")
-                + padding
-                + term_color("║", border, bold=True)
-            )
-        print(term_color("╚" + "═" * (width - 2) + "╝", border, bold=True))
+            print(f"{no}. {label}")
 
 
 def ensure_files():
@@ -643,15 +463,8 @@ def split_product_ids(value):
     return out
 
 
-
 def parse_numbered_link_entries(raw_text, requested_ids=None):
-    """Ambil pasangan nomor + link dari input banyak baris.
-
-    Mendukung format:
-    01. Cek Nama Produk dengan harga Rp106.000 https://s.shopee.co.id/xxx
-    02. https://vt.tokopedia.com/t/xxx/ harga 65.000
-    03 - Nama Produk https://vt.tiktok.com/xxx harga 88.000
-    """
+    """Ambil pasangan nomor + link dari input banyak baris."""
     requested_ids = requested_ids or []
     lines = [x.strip() for x in str(raw_text or "").splitlines() if x.strip()]
     if not lines and raw_text:
@@ -664,9 +477,8 @@ def parse_numbered_link_entries(raw_text, requested_ids=None):
             continue
 
         pid = ""
-        # Format baru: nomor boleh diikuti teks dulu, tidak harus langsung link.
-        # Contoh: 01. Cek Nama Produk ... https://link
-        m = re.match(r"^\s*([A-Za-z]*\d+[A-Za-z]*)\s*[\.)\]:\-–—]+\s*", line, flags=re.I)
+        # Format umum: 71. link / 71) link / 71 - link / B01. link
+        m = re.match(r"^\s*([A-Za-z]*\d+[A-Za-z]*)\s*[\.)\]:\-–—]+\s*https?://", line, flags=re.I)
         if m:
             pid = m.group(1).strip()
 
@@ -688,123 +500,17 @@ def parse_numbered_link_entries(raw_text, requested_ids=None):
     return [e for e in entries if e.get("id")]
 
 
-def parse_inline_name_from_line(raw_line, pid="", link=""):
-    """Ambil nama produk dari baris input jika user menempel teks lengkap.
-
-    Contoh yang didukung:
-    01. Cek Yubeli Sally maxi skirt katun poplin | Rok panjang wanita dengan harga Rp106.000 https://s.shopee.co.id/xxx
-    222. Nama Produk Bagus https://vt.tokopedia.com/t/xxxxx/ harga 65.000
-    """
-    data = parse_input_line_data(raw_line, pid, link)
-    return data.get("name", "")
-
-
-def format_price_from_input(value):
-    """Format harga dari teks user.
-
-    Catatan: jika user menulis 65.00, dianggap 65.000 karena format harga Indonesia
-    sering kurang satu nol ketika diketik cepat.
-    """
-    raw = clean_text(value)
-    raw = re.sub(r"(?i)^rp\s*", "", raw).strip()
-    if re.fullmatch(r"\d{1,3}\.\d{2}", raw):
-        raw = raw + "0"
-    return format_price(raw)
-
-
-def parse_input_line_data(raw_line, pid="", link=""):
-    """Parser pasti dari teks input user, tanpa bergantung scraping marketplace.
-
-    Tujuan:
-    - Shopee share text: nama dari setelah 'Cek' sampai sebelum 'dengan harga'.
-    - Harga dari kata 'dengan harga' / 'harga' baik sebelum maupun sesudah link.
-    - TikTok/Tokopedia: kalau user menulis nama sebelum link, nama langsung dipakai.
-    - Link tetap dari URL pertama di baris.
-    """
-    raw = clean_text(raw_line)
-    result = {"name": "", "price": "", "link": extract_first_url(raw_line) or link or ""}
-    if not raw:
-        return result
-
-    # Buang nomor di depan: 01. / 01 - / B01)
-    line = re.sub(r"^\s*[A-Za-z]*\d+[A-Za-z]*\s*[\.)\]:\-–—]+\s*", "", raw, flags=re.I).strip()
-
-    url_match = re.search(r"https?://[^\s]+", line, flags=re.I)
-    before_url = line[:url_match.start()].strip() if url_match else line
-    after_url = line[url_match.end():].strip() if url_match else ""
-    no_url = re.sub(r"https?://[^\s]+", "", line, flags=re.I).strip()
-    no_url = re.sub(r"\s+", " ", no_url)
-
-    # Harga: prioritas dari kata 'dengan harga', lalu kata 'harga', lalu angka setelah link.
-    price_patterns = [
-        r"(?i)\bdengan\s+harga\s+mulai\s+dari\s*(Rp\s*[\d\.]+(?:,\d+)?|\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?|\d{4,9}(?:,\d+)?)",
-        r"(?i)\bdengan\s+harga\s*(Rp\s*[\d\.]+(?:,\d+)?|\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?|\d{4,9}(?:,\d+)?)",
-        r"(?i)\bharga\s*[:=\-]?\s*(Rp\s*[\d\.]+(?:,\d+)?|\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?|\d{4,9}(?:,\d+)?)",
-    ]
-    for source in [after_url, no_url, line]:
-        if result["price"]:
-            break
-        for pat in price_patterns:
-            m = re.search(pat, source or "", flags=re.I)
-            if m:
-                result["price"] = format_price_from_input(m.group(1))
-                break
-
-    if not result["price"] and after_url:
-        tail = re.sub(r"^[\s,;:/|=\-–—]+", "", after_url)
-        tail = re.sub(r"(?i)^harga\s*[:=\-]?\s*", "", tail).strip()
-        m = re.search(r"(?i)(?:rp\s*)?(\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?|\d{4,9}(?:,\d+)?)", tail)
-        if m:
-            result["price"] = format_price_from_input(m.group(1))
-
-    # Nama pola Shopee share: 'Cek ... dengan harga ...'
-    name = ""
-    patterns = [
-        r"(?is)\bCek\s+(.+?)\s+dengan\s+harga\s+mulai\s+dari\s*(?:Rp\s*)?\d",
-        r"(?is)\bCek\s+(.+?)\s+dengan\s+harga\s*(?:Rp\s*)?\d",
-        r"(?is)^(.+?)\s+dengan\s+harga\s*(?:Rp\s*)?\d",
-    ]
-    for pat in patterns:
-        m = re.search(pat, no_url, flags=re.I | re.S)
-        if m:
-            name = m.group(1)
-            break
-
-    # Fallback nama: teks sebelum URL.
-    if not name and before_url:
-        name = before_url
-
-    # Fallback lain: teks sesudah URL sebelum kata harga, jika ada.
-    if not name and after_url:
-        tmp = re.split(r"(?i)\bharga\b|\bdengan\s+harga\b|\bRp\s*\d", after_url, maxsplit=1)[0].strip()
-        if tmp and not re.fullmatch(r"(?i)(harga|rp|cek|dapatkan|sekarang|di|shopee|tokopedia|tiktok|shop)", tmp):
-            name = tmp
-
-    if name:
-        # Bersihkan kata promosi umum.
-        name = re.sub(r"(?i)^\s*(cek|lihat|beli|checkout|order|pesan)\s+", "", name).strip()
-        name = re.split(r"(?i)\s+dengan\s+harga\b|\s+harga\b|\s+Dapatkan\s+di\b|\s+Dapatkan\b|\s+sekarang\b|\s+di\s+Shopee\b|\s+di\s+Tokopedia\b|\s+di\s+TikTok\b", name, maxsplit=1)[0].strip()
-        name = re.sub(r"(?i)\b(?:Rp\s*)?\d{1,3}(?:[\.\s]\d{3})+(?:,\d+)?\b", "", name).strip()
-        name = re.sub(r"[\s\-|,.;:]+$", "", name).strip()
-        name = clean_title(name, max_len=170)
-        if is_probably_product_name(name) and not re.fullmatch(r"\d+", name):
-            result["name"] = name
-
-    return result
 
 
 def parse_inline_price_after_link(raw_line):
-    """Ambil harga dari teks input.
+    """Ambil harga yang ditulis setelah link pada input bulk.
 
-    Mendukung:
-    - Cek Nama Produk dengan harga Rp106.000 https://s.shopee.co.id/xxx
-    - https://vt.tokopedia.com/t/xxxxx/ harga 65.000
-    - https://vt.tokopedia.com/t/yyyyy/ 29.787
+    Contoh yang didukung:
+    135. https://vt.tokopedia.com/t/xxxxx/ harga 61.781
+    124. https://vt.tokopedia.com/t/yyyyy/ 29.787
+
+    Jika setelah link tidak ada harga, return string kosong agar program lanjut ke input manual.
     """
-    data = parse_input_line_data(raw_line)
-    if data.get("price"):
-        return data["price"]
-
     line = clean_text(raw_line)
     if not line:
         return ""
@@ -817,14 +523,16 @@ def parse_inline_price_after_link(raw_line):
     if not tail:
         return ""
 
+    # Buang pembuka umum setelah URL.
     tail = re.sub(r"^[\s,;:/|=\-–—]+", "", tail)
     tail = re.sub(r"^harga\s*[:=\-]?\s*", "", tail, flags=re.I).strip()
 
-    m_price = re.search(r"(?i)(?:rp\s*)?(\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?|\d{4,9}(?:,\d+)?)", tail)
+    # Ambil angka harga pertama setelah link. Format 8.100, Rp61.781, 66500, 66,500.
+    m_price = re.search(r"(?i)(?:rp\s*)?(\d{1,3}(?:[\.\s]\d{3})+(?:,\d+)?|\d{4,8}(?:,\d+)?)", tail)
     if not m_price:
         return ""
 
-    price = format_price_from_input(m_price.group(1))
+    price = format_price(m_price.group(1))
     return price if price and price != "Cek harga" else ""
 
 def fixed_asset_image_path(product_id):
@@ -941,277 +649,47 @@ def normalize_link_for_cache(value):
         return raw.lower()
 
 
-
-
-def safe_list_values(value):
-    """Ubah nilai menjadi list teks unik tanpa mengubah urutan."""
-    if value is None:
-        return []
-    if isinstance(value, list):
-        raw_items = value
-    else:
-        raw_items = [value]
-    out = []
-    seen = set()
-    for item in raw_items:
-        text = str(item or "").strip()
-        if not text:
-            continue
-        key = text.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(text)
-    return out
-
-
-def product_variants(product):
-    """Ambil daftar varian/nomor produk yang tersimpan di satu kartu produk."""
-    variants = []
-    if isinstance(product.get("_variants"), list):
-        variants.extend([v for v in product.get("_variants") if isinstance(v, dict)])
-    if isinstance(product.get("variants"), list):
-        variants.extend([v for v in product.get("variants") if isinstance(v, dict)])
-    return variants
-
-
-def product_all_ids(product):
-    """Semua nomor produk yang harus bisa dicari di katalog web."""
-    ids = []
-    for key in ["id", "_aliases", "_allIds", "searchIds"]:
-        ids.extend(safe_list_values(product.get(key)))
-    for variant in product_variants(product):
-        ids.extend(safe_list_values(variant.get("id")))
-    # unik, tapi tetap pertahankan urutan
-    out = []
-    seen = set()
-    for item in ids:
-        key = str(item).strip().lower()
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        out.append(str(item).strip())
-    return out
-
-
-def product_link_keys(product):
-    """Semua link yang dianggap mewakili produk yang sama."""
-    keys = []
-    link_fields = [
-        "link", "tiktokLink", "productLink", "affiliateLink",
-        "final_url", "finalUrl", "url", "source_url", "sourceUrl",
-    ]
-    for field in link_fields:
-        key = normalize_link_for_cache(product.get(field, ""))
-        if key:
-            keys.append(key)
-
-    for raw_link in safe_list_values(product.get("_links")):
-        key = normalize_link_for_cache(raw_link)
-        if key:
-            keys.append(key)
-
-    for variant in product_variants(product):
-        for field in link_fields:
-            key = normalize_link_for_cache(variant.get(field, ""))
-            if key:
-                keys.append(key)
-
-    out = []
-    seen = set()
-    for key in keys:
-        if key and key not in seen:
-            seen.add(key)
-            out.append(key)
-    return out
-
-
-def make_product_variant(product):
-    """Simpan snapshot produk sebagai varian supaya nomor lama/baru tetap bisa dicari."""
-    keep_fields = [
-        "id", "name", "price", "category", "type", "badge", "image", "link",
-        "tiktokLink", "platform", "tags", "subtitle", "desc", "size", "colors"
-    ]
-    variant = {}
-    for field in keep_fields:
-        if field in product and product.get(field) not in [None, ""]:
-            variant[field] = product.get(field)
-    return variant
-
-
-def unique_variants_py(variants):
-    """Hilangkan varian yang benar-benar sama, tapi pertahankan nomor berbeda."""
-    out = []
-    seen = set()
-    for variant in variants:
-        if not isinstance(variant, dict):
-            continue
-        key = "|".join([
-            str(variant.get("id", "")).strip().lower(),
-            normalize_link_for_cache(variant.get("link") or variant.get("tiktokLink") or ""),
-            clean_text(variant.get("name", "")).lower(),
-            clean_text(variant.get("price", "")).lower(),
-        ])
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(variant)
-    return out
-
-
-def merge_same_link_product(existing, incoming):
-    """Gabungkan produk dengan link sama agar tidak double di JSON/katalog.
-
-    Hasil:
-    - hanya satu kartu produk utama
-    - semua nomor produk disimpan di _aliases/_allIds/searchIds
-    - nomor lama/baru tetap bisa dicari di website
-    - nama utama tetap satu nama saja
-    """
-    existing = normalize_product(dict(existing or {}))
-    incoming = normalize_product(dict(incoming or {}))
-
-    existing_variant = make_product_variant(existing)
-    incoming_variant = make_product_variant(incoming)
-
-    aliases = product_all_ids(existing)
-    for pid in product_all_ids(incoming):
-        if pid.lower() not in {x.lower() for x in aliases}:
-            aliases.append(pid)
-
-    # Simpan semua varian untuk pencarian nomor di katalog web.
-    variants = []
-    variants.extend(product_variants(existing))
-    if existing_variant.get("id"):
-        variants.append(existing_variant)
-    if incoming_variant.get("id"):
-        variants.append(incoming_variant)
-    variants = unique_variants_py(variants)
-
-    # Nama utama: jangan berubah kalau nama lama sudah bagus.
-    old_name = clean_title(existing.get("name") or "")
-    new_name = clean_title(incoming.get("name") or "")
-    old_placeholder = is_placeholder_product_name(old_name, existing.get("id"))
-    new_valid = new_name and is_probably_product_name(new_name) and not is_placeholder_product_name(new_name, incoming.get("id"))
-    if old_placeholder and new_valid:
-        existing["name"] = new_name
-
-    # Harga: update kalau harga baru lebih jelas.
-    if incoming.get("price") and incoming.get("price") != "Cek harga":
-        existing["price"] = incoming.get("price")
-
-    # Kategori: pertahankan kategori lama, kecuali kategori lama kosong/default dan yang baru lebih jelas.
-    old_cat = clean_category_name(existing.get("category") or "")
-    new_cat = clean_category_name(incoming.get("category") or "")
-    if (not old_cat or old_cat.lower() == "atasan") and new_cat:
-        existing["category"] = new_cat
-        existing["type"] = new_cat
-        existing["badge"] = new_cat
-
-    # Gambar utama: pertahankan lama kalau sudah ada, pakai baru kalau lama masih fallback.
-    old_img = str(existing.get("image") or "")
-    new_img = str(incoming.get("image") or "")
-    if new_img and (not old_img or "no-image" in old_img.lower()):
-        existing["image"] = new_img
-
-    # Link utama tetap link pertama, tapi semua link disimpan agar duplicate terdeteksi.
-    links = []
-    for p in [existing, incoming]:
-        for raw in [p.get("link"), p.get("tiktokLink"), p.get("productLink"), p.get("affiliateLink"), p.get("final_url")]:
-            raw = str(raw or "").strip()
-            if raw and raw not in links:
-                links.append(raw)
-    if links:
-        existing["link"] = existing.get("link") or links[0]
-        existing["tiktokLink"] = existing.get("tiktokLink") or existing["link"]
-        existing["_links"] = links
-
-    existing["_aliases"] = aliases
-    existing["_allIds"] = aliases
-    existing["searchIds"] = aliases
-    existing["_variants"] = variants
-    existing["tags"] = existing.get("tags") or [existing.get("category", "Atasan"), existing.get("platform", "Affiliate")]
-    return normalize_product(existing)
-
 def find_cached_product_by_link(products, link):
     """Cari produk lama dari link yang pernah dimasukkan.
 
-    Sekarang juga membaca _links/_variants supaya link yang sama otomatis
-    digabung dan tidak membuat kartu produk double.
+    Dipakai supaya kalau user memasukkan link yang sama, data lama
+    seperti nama, harga, kategori, dan gambar langsung dipakai tanpa
+    bertanya lagi.
     """
     target_key = normalize_link_for_cache(link)
     if not target_key:
         return None
 
     for p in products:
-        if target_key in product_link_keys(p):
-            return p
+        keys = [
+            p.get("link", ""),
+            p.get("tiktokLink", ""),
+            p.get("productLink", ""),
+            p.get("affiliateLink", ""),
+        ]
+        for old_link in keys:
+            if old_link and normalize_link_for_cache(old_link) == target_key:
+                return p
     return None
 
 
 def save_or_replace_product(products, product):
-    """Simpan produk.
-
-    Aturan:
-    1. Jika ID sama, update produk.
-    2. Jika link sama, gabungkan ke produk lama, bukan tambah kartu baru.
-    3. Nomor produk baru tetap disimpan sebagai alias/search id supaya katalog web
-       tetap bisa menampilkan produk saat user mencari nomor itu.
-    """
-    product = normalize_product(product)
-    incoming_links = set(product_link_keys(product))
-
-    # 1) Kalau link sama dengan produk lama, gabungkan.
-    if incoming_links:
-        for i, old in enumerate(products):
-            old_links = set(product_link_keys(old))
-            if old_links and incoming_links.intersection(old_links):
-                old_id = str(old.get("id", "")).strip()
-                new_id = str(product.get("id", "")).strip()
-                products[i] = merge_same_link_product(old, product)
-                if new_id and new_id != old_id:
-                    info(f"Link produk sudah ada. No {new_id} digabung ke produk no {old_id}.")
-                save_products_sorted(products)
-                return products
-
-    # 2) Kalau ID sama, replace/update.
+    """Simpan produk. Kalau ID sama, replace; kalau tidak, tambah baru."""
+    replaced = False
     for i, old in enumerate(products):
         if str(old.get("id")) == str(product.get("id")):
-            products[i] = merge_same_link_product(old, product)
-            save_products_sorted(products)
-            return products
-
-    # 3) Produk baru.
-    products.append(product)
-    save_products_sorted(products)
-    return products
-
-
-def save_products_sorted(products):
-    """Sortir lalu rapikan data supaya link yang sama tinggal satu produk."""
-    compacted = []
-    for item in products:
-        item = normalize_product(item)
-        item_links = set(product_link_keys(item))
-        merged = False
-        if item_links:
-            for i, old in enumerate(compacted):
-                old_links = set(product_link_keys(old))
-                if old_links and item_links.intersection(old_links):
-                    compacted[i] = merge_same_link_product(old, item)
-                    merged = True
-                    break
-        if not merged:
-            compacted.append(item)
+            products[i] = product
+            replaced = True
+            break
+    if not replaced:
+        products.append(product)
 
     def sort_key(x):
-        value = str(x.get("id", ""))
-        digits = only_digits(value)
-        return int(digits or 999999)
+        return int(only_digits(x.get("id", "")) or 999999)
 
-    compacted.sort(key=sort_key)
-    products[:] = compacted
+    products.sort(key=sort_key)
     save_products(products)
+    return products
 
 
 def clone_cached_product(cached_product, new_id, new_link=None):
@@ -2055,18 +1533,6 @@ def get_session():
     return s
 
 
-
-
-def get_scraper_session():
-    """Alias aman untuk patch auto-nama.
-
-    Beberapa patch lama memakai nama get_scraper_session(),
-    sementara file utama memakai get_session(). Fungsi ini dibuat
-    supaya auto ambil nama dari link tidak error NameError.
-    """
-    return get_session()
-
-
 def curl_get_text(url, referer="https://www.google.com/", timeout=35):
     """Fallback pakai curl karena di Termux curl kadang lebih berhasil mengikuti redirect."""
     try:
@@ -2860,862 +2326,6 @@ def fetch_shopee_api(session, shopid, itemid, product_url="https://shopee.co.id/
     return {}
 
 
-
-def clean_url_candidate(url):
-    """Rapikan URL hasil ekstraksi dari HTML/JSON/redirect."""
-    url = decode_many(url, rounds=6)
-    url = unescape(url).replace("&amp;", "&")
-    url = url.strip().strip('"\'<> )]}')
-    url = re.sub(r"\\+", "", url)
-    return url
-
-
-def is_tokopedia_product_url(url):
-    """Cek apakah URL Tokopedia terlihat seperti halaman produk, bukan shortlink/login/home."""
-    try:
-        parsed = urlparse(str(url or ""))
-        host = parsed.netloc.lower()
-        path = unquote(parsed.path or "").strip("/")
-        if "tokopedia.com" not in host:
-            return False
-        if host.startswith("vt."):
-            return False
-        if not path or path.lower() in {"", "login", "cart", "wishlist", "search", "promo"}:
-            return False
-        if any(x in path.lower() for x in ["login", "captcha", "accounts", "oauth", "help"]):
-            return False
-        # URL produk biasanya minimal /nama-toko/nama-produk atau ada txid di query.
-        if len(path.split("/")) >= 2:
-            return True
-        if any(k in parsed.query.lower() for k in ["txid", "productid", "product_id"]):
-            return True
-    except Exception:
-        pass
-    return False
-
-
-def extract_urls_anywhere(text):
-    """Ambil URL dari HTML/JSON, termasuk URL yang sudah ter-encode beberapa lapis."""
-    decoded = decode_many(text, rounds=8)
-    decoded = unescape(decoded)
-    decoded = decoded.replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&")
-    found = []
-    for m in re.finditer(r"https?://[^\s\"'<>\\]+", decoded, re.I):
-        found.append(clean_url_candidate(m.group(0)))
-
-    # URL kadang muncul sebagai nilai parameter encoded: link=https%3A%2F%2Fwww.tokopedia.com%2F...
-    for m in re.finditer(r"(?:link|url|u|target|redirect|redirect_url|deep_link|deeplink|af_dp|fallback_url)=([^&\s\"'<>]+)", decoded, re.I):
-        value = clean_url_candidate(m.group(1))
-        found.extend([clean_url_candidate(u) for u in re.findall(r"https?://[^\s\"'<>\\]+", decode_many(value, rounds=8), re.I)])
-        if value.startswith("http"):
-            found.append(value)
-
-    out = []
-    seen = set()
-    for u in found:
-        if not u.startswith("http"):
-            continue
-        key = u.lower().split("#", 1)[0]
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(u)
-    return out
-
-
-def choose_best_product_url(urls, fallback=""):
-    """Pilih URL produk terbaik dari daftar kandidat."""
-    urls = [clean_url_candidate(u) for u in (urls or []) if u]
-    urls = list(dict.fromkeys(urls))
-
-    def score(u):
-        low = u.lower()
-        parsed = urlparse(u)
-        path = unquote(parsed.path or "").strip("/")
-        sc = 0
-        if "tokopedia.com" in low:
-            sc += 20
-        if is_tokopedia_product_url(u):
-            sc += 55
-        if "www.tokopedia.com" in low:
-            sc += 8
-        if "product" in low or "pdp" in low or "txid" in low:
-            sc += 12
-        if len(path.split("/")) >= 2:
-            sc += 20
-        if any(x in low for x in ["vt.tokopedia", "accounts", "login", "captcha", "help", "pulsa", "topup"]):
-            sc -= 80
-        return sc
-
-    if urls:
-        urls.sort(key=score, reverse=True)
-        if score(urls[0]) > 0:
-            return urls[0]
-    return fallback or (urls[0] if urls else "")
-
-
-def curl_headers(url, referer="https://www.google.com/", timeout=25):
-    """Ambil header redirect via curl -I; berguna untuk link pendek Tokopedia."""
-    try:
-        cmd = [
-            "curl", "-L", "-I", "-sS", "--max-time", str(timeout),
-            "-A", HEADERS["User-Agent"],
-            "-H", "Accept-Language: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-            "-H", f"Referer: {referer}",
-            "-w", "\n__FINAL_URL__:%{url_effective}",
-            url,
-        ]
-        res = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout + 5)
-        out = (res.stdout or "") + "\n" + (res.stderr or "")
-        final_url = url
-        marker = "\n__FINAL_URL__:"
-        if marker in out:
-            out, final_url = out.rsplit(marker, 1)
-            final_url = final_url.strip() or url
-        urls = [final_url]
-        for m in re.finditer(r"(?im)^location:\s*(.+)$", out):
-            urls.append(clean_url_candidate(m.group(1)))
-        urls.extend(extract_urls_anywhere(out))
-        return choose_best_product_url(urls, final_url), out
-    except Exception:
-        return url, ""
-
-
-def resolve_tokopedia_short_link(session, link):
-    """Resolver khusus vt.tokopedia.com agar nama/gambar bisa otomatis lagi jika target URL terbuka."""
-    urls = [link]
-    html_parts = []
-
-    # 1) Requests/cloudscraper biasa.
-    final_url, html = session_get_text(session, link, referer="https://www.google.com/", timeout=35)
-    urls.append(final_url)
-    html_parts.append(html or "")
-    urls.extend(extract_urls_anywhere("\n".join([link, final_url or "", html or ""])))
-
-    # 2) Header redirect via curl -I.
-    h_url, h_text = curl_headers(link, timeout=25)
-    urls.append(h_url)
-    html_parts.append(h_text or "")
-    urls.extend(extract_urls_anywhere(h_text or ""))
-
-    # 3) Coba beberapa User-Agent karena link pendek kadang beda respons mobile/desktop.
-    user_agents = [
-        "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Mobile Safari/537.36",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36",
-    ]
-    for ua in user_agents:
-        try:
-            headers = dict(HEADERS)
-            headers["User-Agent"] = ua
-            res = session.get(link, headers=headers, timeout=25, allow_redirects=True)
-            urls.append(res.url or "")
-            html_parts.append(res.text or "")
-            urls.extend(extract_urls_anywhere("\n".join([res.url or "", res.text or ""])))
-        except Exception:
-            pass
-
-    target = choose_best_product_url(urls, final_url or link)
-    return target or final_url or link, "\n".join(html_parts)
-
-
-def extract_tokopedia_data_from_html(soup, html, final_url=""):
-    """Ekstraksi khusus Tokopedia dari meta, JSON-LD, dan state NextJS/Apollo."""
-    data = {"name": "", "price": "", "image_url": ""}
-    if not html:
-        return data
-
-    # Meta tags paling cepat jika halaman produk terbuka.
-    if soup:
-        title = (
-            meta(soup, "og:title")
-            or meta(soup, "twitter:title")
-            or meta(soup, "title")
-            or (soup.title.get_text(" ", strip=True) if soup.title else "")
-            or ""
-        )
-        title = clean_title(title)
-        if is_probably_product_name(title) and not title.lower().startswith(("tokopedia", "login")):
-            data["name"] = title
-        img = meta(soup, "og:image") or meta(soup, "twitter:image") or meta(soup, "image") or ""
-        if img and not bad_image(img):
-            data["image_url"] = img
-        mp = meta(soup, "product:price:amount") or meta(soup, "og:price:amount") or ""
-        if mp:
-            data["price"] = format_price(mp)
-
-    decoded = decode_many(html, rounds=8)
-    decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&").replace("\\u0022", '"')
-
-    # Pola eksplisit Tokopedia/NextJS.
-    name_patterns = [
-        r'"(?:productName|product_name|name|title|seoTitle|displayName|productTitle)"\s*:\s*"([^"<>]{5,220})"',
-        r'"(?:product_name|productName)"\s*:\s*\{[^{}]*"text"\s*:\s*"([^"<>]{5,220})"',
-        r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)["\']',
-        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:title["\']',
-    ]
-    for pat in name_patterns:
-        for raw in re.findall(pat, decoded, re.I | re.S):
-            cand = clean_title(raw)
-            if is_probably_product_name(cand) and not cand.lower().startswith(("tokopedia", "masuk", "login")):
-                data["name"] = data["name"] or cand
-                break
-        if data["name"]:
-            break
-
-    price_patterns = [
-        r'"(?:price|priceValue|price_value|originalPrice|original_price|finalPrice|final_price)"\s*:\s*"?(Rp\s*[\d\.,]+|\d{4,12})"?',
-        r'"(?:price|priceValue|finalPrice)"\s*:\s*\{[^{}]*"(?:value|amount)"\s*:\s*"?(\d{4,12})"?',
-        r'Rp\s*[\d\.]+(?:,\d+)?',
-    ]
-    for pat in price_patterns:
-        for raw in re.findall(pat, decoded, re.I | re.S):
-            price = format_price(raw)
-            if price and price != "Cek harga":
-                data["price"] = data["price"] or price
-                break
-        if data["price"]:
-            break
-
-    image_patterns = [
-        r'"(?:imageUrl|image_url|image|thumbnail|thumbnailUrl|thumbnail_url|urlOriginal|urlThumbnail|largeImage)"\s*:\s*"(https?://[^"<>]+)"',
-        r'https?://images\.tokopedia\.net/[^\s"\'<>\\]+',
-        r'https?://ecs7\.tokopedia\.net/[^\s"\'<>\\]+',
-    ]
-    for pat in image_patterns:
-        for raw in re.findall(pat, decoded, re.I | re.S):
-            img = clean_url_candidate(raw)
-            if img and not bad_image(img):
-                data["image_url"] = data["image_url"] or img
-                break
-        if data["image_url"]:
-            break
-
-    # Fallback nama dari slug final URL kalau shortlink berhasil jadi URL produk.
-    if not data["name"] and is_tokopedia_product_url(final_url):
-        slug_name = title_from_url_slug(final_url)
-        if slug_name:
-            data["name"] = slug_name
-
-    return data
-
-
-
-def write_tiktok_debug(logs):
-    try:
-        Path("tiktok_debug_last.txt").write_text("\n".join(map(str, logs)), encoding="utf-8")
-    except Exception:
-        pass
-
-
-def clean_tiktok_product_title(value):
-    """Rapikan kandidat nama dari TikTok/TikTok Shop dan buang judul generik."""
-    title = clean_title(value, max_len=180)
-    if not title:
-        return ""
-
-    # Buang label umum platform tanpa memotong nama produk.
-    title = re.sub(r"(?i)^\s*(TikTok\s*Shop|TikTok)\s*[-|:•]+\s*", "", title).strip()
-    title = re.sub(r"(?i)\s*[-|:•]+\s*(TikTok\s*Shop|TikTok|TikTok Shop Indonesia|Make Your Day)\s*$", "", title).strip()
-    title = re.sub(r"(?i)\b(TikTok Shop Indonesia|TikTok Shop|TikTok)\b", "", title).strip(" -|:•")
-    title = re.sub(r"\s+", " ", title).strip()
-
-    low = title.lower()
-    bad = [
-        "make your day", "log in", "login", "sign up", "for you", "security check",
-        "captcha", "access denied", "akses ditolak", "unsupported browser", "watch full video",
-        "original sound", "suara asli", "tiktok" , "shop"
-    ]
-    if not title or any(x == low or low.startswith(x + " ") for x in bad):
-        return ""
-    if re.fullmatch(r"(?i)(produk|product|item)\s*\d*", title):
-        return ""
-    return title if is_probably_product_name(title) else ""
-
-
-def extract_tiktok_urls_from_text(text):
-    decoded = decode_many(str(text or ""), rounds=6)
-    decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":")
-    urls = []
-    for pat in [
-        r'https?://(?:[^\s"\'<>\\]+\.)?tiktok\.com/[^\s"\'<>\\]+',
-        r'https?://(?:[^\s"\'<>\\]+\.)?tiktokglobalshop\.com/[^\s"\'<>\\]+',
-    ]:
-        for u in re.findall(pat, decoded, re.I):
-            u = u.replace("\\", "").rstrip(".,);]}>'\"")
-            urls.append(u)
-    return list(dict.fromkeys(urls))
-
-
-def score_tiktok_url(url):
-    low = str(url or "").lower()
-    score = 0
-    if "shop.tiktok" in low or "tiktokglobalshop" in low:
-        score += 60
-    if "/product/" in low or "/view/product" in low or "product_id" in low or "item_id" in low:
-        score += 80
-    if re.search(r"/video/\d+", low):
-        score += 35
-    if "vt.tiktok" in low or "/t/" in low or "vm.tiktok" in low:
-        score -= 5
-    if any(x in low for x in ["login", "captcha", "verify", "security", "download", "about"]):
-        score -= 70
-    return score
-
-
-def resolve_tiktok_short_link(session, link):
-    """Resolve link pendek TikTok lalu ambil URL asli/landing yang paling mungkin berisi data produk."""
-    try:
-        final_url, html = session_get_text(session, link, referer="https://www.tiktok.com/", timeout=35)
-        decoded = decode_many("\n".join([str(link), str(final_url), str(html)]), rounds=7)
-        decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":")
-
-        urls = [final_url or link]
-
-        # Parameter redirect/deep link yang sering muncul pada link pendek/affiliate.
-        for u in list(urls):
-            try:
-                parsed = urlparse(u)
-                qs = parse_qs(parsed.query)
-                for key, vals in qs.items():
-                    if key.lower() in {"url", "u", "target", "redirect", "redirect_url", "share_url", "deeplink", "deep_link", "af_dp", "link"}:
-                        for val in vals:
-                            urls.extend(extract_tiktok_urls_from_text(val))
-                            urls.extend(extract_product_urls_from_text(val))
-            except Exception:
-                pass
-
-        # Meta refresh / JS redirect.
-        for pat in [
-            r'http-equiv=["\']refresh["\'][^>]+content=["\'][^"\']*url=([^"\']+)',
-            r'location\.(?:href|replace)\s*\(?\s*["\']([^"\']+)["\']',
-            r'"(?:redirect_url|target_url|share_url|canonical_url|url)"\s*:\s*"(https?://[^"<>]+)"',
-        ]:
-            for m in re.findall(pat, decoded, re.I):
-                urls.extend(extract_tiktok_urls_from_text(m) or [m])
-
-        urls.extend(extract_tiktok_urls_from_text(decoded))
-        urls = [u for u in dict.fromkeys(urls) if u and str(u).startswith("http")]
-        if urls:
-            urls.sort(key=score_tiktok_url, reverse=True)
-            return urls[0], html
-        return final_url or link, html
-    except Exception:
-        return link, ""
-
-
-def fetch_tiktok_oembed_data(session, url):
-    """Fallback ringan untuk link video TikTok: ambil title dan thumbnail dari oEmbed."""
-    data = {"name": "", "image_url": ""}
-    if not url:
-        return data
-    try:
-        api = "https://www.tiktok.com/oembed?" + urlencode({"url": url})
-        headers = dict(HEADERS)
-        headers["Accept"] = "application/json,text/plain,*/*"
-        res = session.get(api, headers=headers, timeout=25, allow_redirects=True)
-        if res.status_code != 200:
-            return data
-        js = res.json()
-        title = clean_tiktok_product_title(js.get("title") or "")
-        if title:
-            data["name"] = title
-        img = normalize_image_value(js.get("thumbnail_url") or js.get("thumbnailUrl") or "")
-        if img and not bad_image(img):
-            data["image_url"] = img
-    except Exception:
-        pass
-    return data
-
-
-def extract_tiktok_image_candidates(html):
-    decoded = decode_many(str(html or ""), rounds=7)
-    decoded = unescape(decoded)
-    decoded = decoded.replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":")
-    decoded = decoded.replace("\\u0026", "&").replace("\\u003D", "=").replace("\\u0022", '"')
-
-    candidates = []
-    patterns = [
-        r'https?://[^\s"\'<>\\]+(?:ibyteimg|tiktokcdn|tiktokv|byteimg|p16-oec|p19-oec|p16-sign|sf16|phinf|tos-)[^\s"\'<>\\]+?\.(?:webp|jpg|jpeg|png)(?:\?[^\s"\'<>\\]+)?',
-        r'https?://[^\s"\'<>\\]+(?:ibyteimg|tiktokcdn|tiktokv|byteimg|p16-oec|p19-oec|p16-sign|sf16|phinf|tos-)[^\s"\'<>\\]+',
-    ]
-    for pat in patterns:
-        for u in re.findall(pat, decoded, re.I):
-            candidates.append(u)
-
-    clean_values = []
-    seen = set()
-    for u in candidates:
-        u = clean_text(u)
-        if u.startswith("//"):
-            u = "https:" + u
-        if not u.startswith("http") or bad_image(u):
-            continue
-        if u in seen:
-            continue
-        seen.add(u)
-        clean_values.append(u)
-
-    def score(u):
-        low = u.lower()
-        s = 0
-        if any(x in low for x in ["oec", "product", "ecom", "shop", "goods"]):
-            s += 35
-        if ".webp" in low:
-            s += 18
-        if any(x in low for x in ["720", "960", "1080", "origin", "large"]):
-            s += 10
-        if any(x in low for x in ["avatar", "profile", "logo", "icon", "sprite", "favicon", "music"]):
-            s -= 80
-        if any(x in low for x in ["100x100", "120x120", "160x160", "50x50", "64x64"]):
-            s -= 15
-        return s
-
-    return sorted(clean_values, key=score, reverse=True)
-
-
-def extract_tiktok_data_from_html(soup, html, final_url=""):
-    """Ambil nama dan gambar dari HTML/JSON TikTok/TikTok Shop."""
-    data = {"name": "", "image_url": "", "price": ""}
-    decoded = decode_many(str(html or ""), rounds=7)
-    decoded = unescape(decoded)
-    decoded = decoded.replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":")
-    decoded = decoded.replace("\\u0026", "&").replace("\\u003D", "=").replace("\\u0022", '"')
-
-    title_candidates = [
-        meta(soup, "og:title") if soup else "",
-        meta(soup, "twitter:title") if soup else "",
-        meta(soup, "title") if soup else "",
-        soup.title.get_text(" ", strip=True) if soup and soup.title else "",
-        title_from_url_slug(final_url),
-    ]
-
-    # JSON-LD / hydration state / embedded API sering menyimpan product_title atau title.
-    patterns = [
-        r'"(?:product_title|productTitle|product_name|productName|goods_name|goodsName|item_title|itemTitle|title|name)"\s*:\s*"([^"<>]{5,220})"',
-        r'"desc"\s*:\s*"([^"<>]{8,220})"',
-        r'<meta[^>]+(?:property|name)=["\'](?:og:title|twitter:title)["\'][^>]+content=["\']([^"\']+)["\']',
-        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\'](?:og:title|twitter:title)["\']',
-    ]
-    for pat in patterns:
-        for m in re.findall(pat, decoded, re.I | re.S):
-            title_candidates.append(m)
-
-    # JSON objects, kalau struktur berhasil terbaca.
-    try:
-        for js in extract_json_objects_from_html(soup, html):
-            jdata = walk_find_product_data(js)
-            if jdata.get("name"):
-                title_candidates.append(jdata["name"])
-            if not data["image_url"] and jdata.get("image"):
-                data["image_url"] = jdata["image"]
-            if not data["price"] and jdata.get("price"):
-                data["price"] = jdata["price"]
-    except Exception:
-        pass
-
-    for cand in title_candidates:
-        title = clean_tiktok_product_title(cand)
-        if title:
-            data["name"] = title
-            break
-
-    imgs = []
-    for key in ["og:image", "twitter:image", "twitter:image:src", "image"]:
-        try:
-            v = meta(soup, key)
-            if v:
-                imgs.append(v)
-        except Exception:
-            pass
-    imgs.extend(extract_tiktok_image_candidates(decoded))
-    if not data["image_url"]:
-        for img in imgs:
-            img = normalize_image_value(img)
-            if img and not bad_image(img):
-                data["image_url"] = img
-                break
-
-    if not data["price"]:
-        price_number = extract_price_from_html(decoded[:60000])
-        if price_number:
-            data["price"] = format_price(price_number)
-
-    return data
-
-
-def write_tokopedia_debug(logs):
-    try:
-        Path("tokopedia_debug_last.txt").write_text("\n".join(map(str, logs)), encoding="utf-8")
-    except Exception:
-        pass
-
-
-
-# =========================
-# Tokopedia Auto Nama SUPER
-# =========================
-# Bagian ini sengaja dibuat agresif karena link vt.tokopedia.com kadang hanya
-# mengembalikan redirect/deeplink. Alurnya:
-# 1) resolve link pendek dengan requests + curl + intent/deeplink parser
-# 2) baca halaman target dengan beberapa referer/User-Agent
-# 3) ambil meta/JSON/slug
-# 4) fallback ke layanan metadata publik tanpa API key, kalau Termux masih diblokir.
-
-def is_bad_tokopedia_name(value, pid=""):
-    title = clean_title(value or "")
-    low = title.lower().strip()
-    pid = str(pid or "").strip().lower()
-    bad_exact = {
-        "", "tokopedia", "tokopedia seller", "tokopedia affiliate", "toko online",
-        "jual beli online aman dan nyaman", "login", "masuk", "daftar", "captcha",
-        "access denied", "security check", "produk", "product", "item",
-        "tokopedia - jual beli online", "jual beli online terlengkap"
-    }
-    if low in bad_exact:
-        return True
-    if pid and low in {f"produk {pid}", f"product {pid}", f"item {pid}", pid}:
-        return True
-    if low.startswith(("tokopedia", "masuk", "login", "captcha", "akses ditolak", "security")):
-        return True
-    if len(low) < 5:
-        return True
-    if len(re.findall(r"[a-zA-ZÀ-ÿ0-9]", title)) < 5:
-        return True
-    return False
-
-
-def clean_tokopedia_product_name(value, pid=""):
-    title = clean_title(value or "", max_len=180)
-    title = decode_many(title, rounds=4)
-    title = unescape(title)
-    title = title.replace("+", " ")
-    # Buang prefix/suffix marketplace, tapi jangan potong nama panjang produk.
-    title = re.sub(r"(?i)^\s*(jual|beli|harga)\s+", "", title).strip()
-    title = re.sub(r"(?i)\s*(\||-|—|–|•|:)\s*(tokopedia|tokopedia seller|tokopedia affiliate|tiktok shop|shopee)\s*$", "", title).strip()
-    title = re.sub(r"(?i)\b(tokopedia\s*(seller|affiliate)?|jual beli online aman dan nyaman)\b", "", title).strip(" -|:•")
-    title = re.sub(r"\s+", " ", title).strip()
-    if is_bad_tokopedia_name(title, pid):
-        return ""
-    return title
-
-
-def extract_intent_and_deeplink_urls(text):
-    """Ambil URL produk dari intent://, tokopedia://, fallback_url, dan string encoded."""
-    raw = str(text or "")
-    decoded = decode_many(raw, rounds=10)
-    decoded = unescape(decoded)
-    decoded = decoded.replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&").replace("\\u003D", "=").replace("\\u0022", '"')
-    found = []
-
-    # URL biasa/encoded.
-    found.extend(extract_urls_anywhere(decoded))
-
-    # Intent Android sering berisi S.browser_fallback_url=https%3A%2F%2F...
-    for pat in [
-        r"S\.browser_fallback_url=([^;\s\"'<>]+)",
-        r"browser_fallback_url=([^;&\s\"'<>]+)",
-        r"(?:fallback_url|redirect_url|target_url|deeplink|deep_link|af_dp|url|u|link)=([^&;\s\"'<>]+)",
-    ]:
-        for val in re.findall(pat, decoded, re.I):
-            val = clean_url_candidate(val)
-            if val.startswith("http"):
-                found.append(val)
-            found.extend(extract_urls_anywhere(val))
-
-    # Tokopedia deeplink kadang berbentuk tokopedia://product/..?...&url=https...
-    for m in re.finditer(r"tokopedia://[^\s\"'<>]+", decoded, re.I):
-        deeplink = clean_url_candidate(m.group(0))
-        parsed = urlparse(deeplink)
-        qs = parse_qs(parsed.query)
-        for vals in qs.values():
-            for val in vals:
-                val = clean_url_candidate(val)
-                if val.startswith("http"):
-                    found.append(val)
-                found.extend(extract_urls_anywhere(val))
-        # Jika path deeplink sudah memuat /nama-toko/nama-produk, ubah ke https.
-        path = unquote(parsed.path or "").strip("/")
-        if path and "/" in path and not path.lower().startswith(("product", "pdp", "home")):
-            found.append("https://www.tokopedia.com/" + path)
-
-    # Relative URL yang kadang muncul sebagai //www.tokopedia.com/toko/produk
-    for m in re.findall(r"(?<!:)//(?:www\.)?tokopedia\.com/[^\s\"'<>\\]+", decoded, re.I):
-        found.append("https:" + clean_url_candidate(m))
-
-    out, seen = [], set()
-    for u in found:
-        u = clean_url_candidate(u)
-        if not u.startswith("http"):
-            continue
-        key = u.lower().split("#", 1)[0]
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(u)
-    return out
-
-
-def curl_get_text_strong(url, referer="https://www.google.com/", timeout=40, ua=None):
-    """curl lebih kuat: ikut redirect, simpan header+body, pakai HTTP/1.1."""
-    try:
-        ua = ua or HEADERS["User-Agent"]
-        cmd = [
-            "curl", "-L", "-sS", "--compressed", "--http1.1", "--max-time", str(timeout),
-            "-A", ua,
-            "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "-H", "Accept-Language: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-            "-H", "Cache-Control: no-cache",
-            "-H", f"Referer: {referer}",
-            "-D", "-",
-            "-w", "\n__FINAL_URL__:%{url_effective}\n__HTTP_CODE__:%{http_code}",
-            url,
-        ]
-        res = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout + 8)
-        out = (res.stdout or "") + "\n" + (res.stderr or "")
-        final_url = url
-        marker = "\n__FINAL_URL__:"
-        if marker in out:
-            body, tail = out.rsplit(marker, 1)
-            final_url = tail.split("\n", 1)[0].strip() or url
-            out = body + "\n" + tail
-        return final_url, out
-    except Exception:
-        return url, ""
-
-
-def fetch_public_metadata_services(session, url, logs=None):
-    """Fallback metadata publik. Tidak wajib berhasil, tapi sering membantu link pendek."""
-    data = {"name": "", "image_url": "", "price": "", "final_url": url, "html": ""}
-    logs = logs if isinstance(logs, list) else []
-    if not url or requests is None:
-        return data
-
-    endpoints = [
-        ("microlink", "https://api.microlink.io/?" + urlencode({"url": url, "screenshot": "false", "meta": "false", "embed": "false"})),
-        ("jsonlink", "https://jsonlink.io/api/extract?" + urlencode({"url": url})),
-        # Jina Reader: endpoint ini mengambil versi teks dari halaman publik. Kalau gagal, diabaikan.
-        ("jina", "https://r.jina.ai/http://r.jina.ai/http://" + url),
-        ("jina2", "https://r.jina.ai/http://" + url.replace("https://", "").replace("http://", "")),
-    ]
-    for name, api in endpoints:
-        try:
-            headers = dict(HEADERS)
-            headers["Accept"] = "application/json,text/plain,text/html,*/*"
-            res = session.get(api, headers=headers, timeout=30, allow_redirects=True)
-            txt = res.text or ""
-            logs.append(f"META_{name}_STATUS={res.status_code} LEN={len(txt)}")
-            data["html"] += "\n" + txt[:120000]
-            if not txt:
-                continue
-            # JSON endpoints.
-            try:
-                js = res.json()
-            except Exception:
-                js = None
-            if isinstance(js, dict):
-                candidates = []
-                if name == "microlink":
-                    d = js.get("data") or {}
-                    candidates.extend([d.get("title"), d.get("description")])
-                    img = d.get("image") or d.get("logo") or {}
-                    if isinstance(img, dict):
-                        img = img.get("url") or img.get("src")
-                    if img and not data["image_url"]:
-                        data["image_url"] = normalize_image_value(str(img))
-                    if d.get("url"):
-                        data["final_url"] = d.get("url")
-                elif name == "jsonlink":
-                    candidates.extend([js.get("title"), js.get("description")])
-                    img = js.get("images") or js.get("image") or ""
-                    if isinstance(img, list) and img:
-                        img = img[0]
-                    if img and not data["image_url"]:
-                        data["image_url"] = normalize_image_value(str(img))
-                    if js.get("url"):
-                        data["final_url"] = js.get("url")
-                for cand in candidates:
-                    cname = clean_tokopedia_product_name(cand)
-                    if cname and not data["name"]:
-                        data["name"] = cname
-            # Text endpoint / fallback regex.
-            if not data["name"]:
-                for pat in [
-                    r"(?im)^Title:\s*(.+)$",
-                    r"(?im)^#\s+(.+)$",
-                    r'"title"\s*:\s*"([^"<>]{5,220})"',
-                    r'"name"\s*:\s*"([^"<>]{5,220})"',
-                ]:
-                    for m in re.findall(pat, txt, re.I | re.S):
-                        cname = clean_tokopedia_product_name(m)
-                        if cname:
-                            data["name"] = cname
-                            break
-                    if data["name"]:
-                        break
-            if not data["image_url"]:
-                imgs = image_candidates(BeautifulSoup(txt, "html.parser") if BeautifulSoup else None, txt) if BeautifulSoup else []
-                if imgs:
-                    data["image_url"] = imgs[0]
-            if data["name"]:
-                break
-        except Exception as e:
-            logs.append(f"META_{name}_ERR={type(e).__name__}: {e}")
-    return data
-
-
-def tokopedia_super_extract(session, link, product_id="", logs=None):
-    logs = logs if isinstance(logs, list) else []
-    result = {"name": "", "price": "", "image_url": "", "final_url": link, "html": ""}
-    urls = [link]
-    html_parts = []
-
-    # Ambil dengan request biasa, curl biasa, curl kuat, dan beberapa referer.
-    attempts = []
-    try:
-        attempts.append(session_get_text(session, link, referer="https://www.google.com/", timeout=35))
-    except Exception:
-        pass
-    for referer in ["https://www.tokopedia.com/", "https://www.google.com/", "https://m.tokopedia.com/"]:
-        try:
-            attempts.append(curl_get_text_strong(link, referer=referer, timeout=40))
-        except Exception:
-            pass
-
-    user_agents = [
-        HEADERS.get("User-Agent", "Mozilla/5.0"),
-        "Mozilla/5.0 (Linux; Android 14; Mobile; rv:125.0) Gecko/125.0 Firefox/125.0",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
-    ]
-    for ua in user_agents:
-        try:
-            attempts.append(curl_get_text_strong(link, referer="https://www.tokopedia.com/", timeout=30, ua=ua))
-        except Exception:
-            pass
-
-    for final_url, html in attempts:
-        if final_url:
-            urls.append(final_url)
-        if html:
-            html_parts.append(html)
-            urls.extend(extract_urls_anywhere(html))
-            urls.extend(extract_intent_and_deeplink_urls(html))
-
-    urls.extend(extract_intent_and_deeplink_urls("\n".join([link] + urls + html_parts)))
-    best_url = choose_best_product_url(urls, link)
-    if best_url:
-        result["final_url"] = best_url
-        urls.insert(0, best_url)
-
-    # Jika berhasil dapat URL asli produk, buka halaman produk itu lagi.
-    for u in list(dict.fromkeys(urls))[:8]:
-        if not u or not str(u).startswith("http"):
-            continue
-        try:
-            fu, html = session_get_text(session, u, referer="https://www.tokopedia.com/", timeout=35)
-            html_parts.append(html or "")
-            if fu:
-                result["final_url"] = choose_best_product_url([fu, result.get("final_url")], result.get("final_url") or fu)
-            # curl body tambahan
-            cfu, chtm = curl_get_text_strong(u, referer="https://www.tokopedia.com/", timeout=35)
-            html_parts.append(chtm or "")
-            if cfu:
-                result["final_url"] = choose_best_product_url([cfu, result.get("final_url")], result.get("final_url") or cfu)
-        except Exception:
-            pass
-
-    combined = "\n".join(html_parts)
-    result["html"] = combined
-    logs.append(f"TOKPED_SUPER_URLS={len(urls)} BEST={result.get('final_url')}")
-    logs.append(f"TOKPED_SUPER_HTML_LEN={len(combined)}")
-
-    try:
-        soup = BeautifulSoup(combined, "html.parser") if BeautifulSoup else None
-        data = extract_tokopedia_data_from_html(soup, combined, result.get("final_url") or link)
-        for k in ["name", "price", "image_url"]:
-            if data.get(k) and not result.get(k):
-                result[k] = data[k]
-    except Exception as e:
-        logs.append(f"TOKPED_SUPER_EXTRACT_ERR={type(e).__name__}: {e}")
-
-    # Kandidat nama tambahan dari semua teks, termasuk JSON hydration dan markdown.
-    if not result["name"] or is_bad_tokopedia_name(result["name"], product_id):
-        decoded = decode_many(combined, rounds=10)
-        decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&").replace("\\u003D", "=").replace("\\u0022", '"')
-        title_candidates = []
-        for pat in [
-            r'"(?:productName|product_name|productTitle|product_title|itemName|item_name|goodsName|goods_name|displayName|title|name)"\s*:\s*"([^"<>]{5,260})"',
-            r'"(?:seo_title|seoTitle|metaTitle)"\s*:\s*"([^"<>]{5,260})"',
-            r'(?im)^Title:\s*(.+)$',
-            r'(?im)^#\s+(.+)$',
-            r'<title[^>]*>(.*?)</title>',
-            r'<meta[^>]+(?:property|name)=["\'](?:og:title|twitter:title|title)["\'][^>]+content=["\']([^"\']+)["\']',
-            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\'](?:og:title|twitter:title|title)["\']',
-        ]:
-            for m in re.findall(pat, decoded, re.I | re.S):
-                title_candidates.append(m)
-        # Slug dari URL produk asli kalau ada.
-        for u in [result.get("final_url"), link] + urls:
-            slug = title_from_url_slug(u)
-            if slug:
-                title_candidates.append(slug)
-        # Pilih kandidat terbaik.
-        best_name = ""
-        best_score = -999
-        for cand in title_candidates:
-            cname = clean_tokopedia_product_name(cand, product_id)
-            if not cname:
-                continue
-            low = cname.lower()
-            score = min(len(cname), 120)
-            if any(w in low for w in ["gamis", "hijab", "tas", "celana", "baju", "abaya", "dress", "rok", "kemeja", "sepatu", "tumbler", "batik", "pashmina", "oneset", "kulot"]):
-                score += 40
-            if "tokopedia" in low:
-                score -= 80
-            if len(cname.split()) >= 3:
-                score += 15
-            if score > best_score:
-                best_score = score
-                best_name = cname
-        if best_name:
-            result["name"] = best_name
-
-    # Harga dan gambar tambahan.
-    if not result["price"]:
-        pn = extract_price_from_html(combined[:120000])
-        if pn:
-            result["price"] = format_price(pn)
-    if not result["image_url"]:
-        try:
-            imgs = image_candidates(BeautifulSoup(combined, "html.parser"), combined) if BeautifulSoup else []
-            # Prioritas Tokopedia CDN.
-            imgs = sorted(imgs, key=lambda u: ("images.tokopedia.net" in u.lower(), ".webp" in u.lower()), reverse=True)
-            if imgs:
-                result["image_url"] = imgs[0]
-        except Exception:
-            pass
-
-    # Fallback metadata publik bila masih belum dapat nama.
-    if not result["name"] or is_bad_tokopedia_name(result["name"], product_id):
-        for u in list(dict.fromkeys([result.get("final_url"), link] + urls))[:4]:
-            meta_data = fetch_public_metadata_services(session, u, logs)
-            if meta_data.get("name") and not is_bad_tokopedia_name(meta_data["name"], product_id):
-                result["name"] = meta_data["name"]
-            if meta_data.get("image_url") and not result["image_url"]:
-                result["image_url"] = meta_data["image_url"]
-            if meta_data.get("price") and not result["price"]:
-                result["price"] = meta_data["price"]
-            if meta_data.get("final_url"):
-                result["final_url"] = choose_best_product_url([meta_data["final_url"], result.get("final_url")], result.get("final_url") or meta_data["final_url"])
-            if result.get("name") and not is_bad_tokopedia_name(result["name"], product_id):
-                break
-
-    logs.append(f"TOKPED_SUPER_NAME={result.get('name') or '-'}")
-    logs.append(f"TOKPED_SUPER_PRICE={result.get('price') or '-'}")
-    logs.append(f"TOKPED_SUPER_IMAGE={'yes' if result.get('image_url') else '-'}")
-    return result
-
 def fetch_product_data(link, product_id):
     default = {
         "name": f"Produk {product_id}",
@@ -3730,27 +2340,17 @@ def fetch_product_data(link, product_id):
         return default
 
     session = get_session()
-    debug_logs = [f"INPUT_LINK={link}", f"PRODUCT_ID={product_id}"]
 
     try:
         if "shopee" in link.lower():
             shopee_preflight(session, "https://shopee.co.id/")
 
-        link_lower = str(link or "").lower()
-        if "tokopedia" in link_lower:
-            resolved_url, redirect_html = resolve_tokopedia_short_link(session, link)
-        elif "tiktok" in link_lower:
-            resolved_url, redirect_html = resolve_tiktok_short_link(session, link)
-        else:
-            resolved_url, redirect_html = resolve_short_link(session, link)
-        debug_logs.append(f"RESOLVED_URL={resolved_url}")
+        resolved_url, redirect_html = resolve_short_link(session, link)
         final_url, page_html = session_get_text(session, resolved_url, referer="https://www.google.com/", timeout=35)
         html = (redirect_html or "") + "\n" + (page_html or "")
         final_url = final_url or resolved_url or link
         soup = BeautifulSoup(html, "html.parser")
         plat = detect_platform(final_url or link)
-        debug_logs.append(f"FINAL_URL={final_url}")
-        debug_logs.append(f"PLATFORM={plat}")
 
         title = extract_title_like_tiktok(soup, html, final_url)
 
@@ -3765,50 +2365,6 @@ def fetch_product_data(link, product_id):
         price = "Cek harga"
         image_url = ""
         auto_price_allowed = plat != "TikTok"
-
-        # TikTok / TikTok Shop: ambil nama dan gambar dari HTML, state JSON, serta oEmbed.
-        if plat == "TikTok":
-            tiktok_data = extract_tiktok_data_from_html(soup, html, final_url)
-            oembed_data = fetch_tiktok_oembed_data(session, final_url or resolved_url or link)
-            debug_logs.append(f"TIKTOK_NAME={tiktok_data.get('name') or oembed_data.get('name') or '-'}")
-            debug_logs.append(f"TIKTOK_IMAGE={'yes' if (tiktok_data.get('image_url') or oembed_data.get('image_url')) else '-'}")
-            if tiktok_data.get("name") and is_probably_product_name(tiktok_data.get("name")):
-                name = tiktok_data["name"]
-            elif oembed_data.get("name") and is_probably_product_name(oembed_data.get("name")):
-                name = oembed_data["name"]
-            if tiktok_data.get("image_url"):
-                image_url = tiktok_data["image_url"]
-            elif oembed_data.get("image_url"):
-                image_url = oembed_data["image_url"]
-            # Harga TikTok tetap tidak dipakai otomatis kecuali user menulis harga di baris input.
-            write_tiktok_debug(debug_logs)
-
-        # Tokopedia: coba ekstraksi khusus dari URL final, meta, dan state halaman.
-        if plat == "Tokopedia":
-            tokped_data = extract_tokopedia_data_from_html(soup, html, final_url)
-            debug_logs.append(f"TOKOPEDIA_NAME={tokped_data.get('name') or '-'}")
-            debug_logs.append(f"TOKOPEDIA_PRICE={tokped_data.get('price') or '-'}")
-            debug_logs.append(f"TOKOPEDIA_IMAGE={'yes' if tokped_data.get('image_url') else '-'}")
-            if tokped_data.get("name") and is_probably_product_name(tokped_data.get("name")):
-                name = tokped_data["name"]
-            if tokped_data.get("price") and price == "Cek harga":
-                price = tokped_data["price"]
-            if tokped_data.get("image_url"):
-                image_url = tokped_data["image_url"]
-
-            # Super fallback khusus vt.tokopedia.com / link affiliate.
-            # Ini dicoba sebelum kategori, supaya nama produk benar-benar muncul.
-            if (not is_probably_product_name(name)) or is_placeholder_product_name(name, product_id):
-                super_data = tokopedia_super_extract(session, link, product_id, debug_logs)
-                if super_data.get("final_url"):
-                    final_url = super_data["final_url"]
-                if super_data.get("name") and is_probably_product_name(super_data.get("name")):
-                    name = super_data["name"]
-                if super_data.get("price") and price == "Cek harga":
-                    price = super_data["price"]
-                if super_data.get("image_url") and not image_url:
-                    image_url = super_data["image_url"]
-            write_tokopedia_debug(debug_logs)
 
         # Shopee: jalur terbaik adalah Affiliate Open API resmi (butuh App ID + Secret).
         # Kalau belum diset, lanjut ke fallback HTML/API publik.
@@ -3874,29 +2430,11 @@ def fetch_product_data(link, product_id):
             price = "Cek harga"
 
         if not image_url:
-            imgs = extract_tiktok_image_candidates(html) if plat == "TikTok" else []
-            if not imgs:
-                imgs = image_candidates(soup, html)
+            imgs = image_candidates(soup, html)
             image_url = imgs[0] if imgs else ""
 
-        if not is_probably_product_name(name) or is_placeholder_product_name(name, product_id):
-            if plat == "TikTok":
-                extra_tiktok = extract_tiktok_data_from_html(soup, html, final_url)
-                if extra_tiktok.get("name"):
-                    name = extra_tiktok["name"]
-            elif plat == "Tokopedia":
-                super_data = tokopedia_super_extract(session, link, product_id, debug_logs)
-                if super_data.get("final_url"):
-                    final_url = super_data["final_url"]
-                if super_data.get("name") and is_probably_product_name(super_data.get("name")):
-                    name = super_data["name"]
-                if super_data.get("price") and price == "Cek harga":
-                    price = super_data["price"]
-                if super_data.get("image_url") and not image_url:
-                    image_url = super_data["image_url"]
-                write_tokopedia_debug(debug_logs)
-            if not is_probably_product_name(name) or is_placeholder_product_name(name, product_id):
-                name = title_from_url_slug(final_url) or title_from_url_slug(resolved_url) or title_from_url_slug(link) or f"Produk {product_id}"
+        if not is_probably_product_name(name):
+            name = title_from_url_slug(final_url) or title_from_url_slug(resolved_url) or title_from_url_slug(link) or f"Produk {product_id}"
 
         image_path = download_image(image_url, product_id) if image_url else str(NO_IMAGE).replace("\\", "/")
         category = infer_category_from_name(name, desc)
@@ -3910,13 +2448,7 @@ def fetch_product_data(link, product_id):
             "final_url": final_url,
         }
 
-    except Exception as e:
-        if "tokopedia" in str(link).lower():
-            try:
-                debug_logs.append(f"ERROR={type(e).__name__}: {e}")
-                write_tokopedia_debug(debug_logs)
-            except Exception:
-                pass
+    except Exception:
         return default
 
 
@@ -3969,55 +2501,14 @@ def input_price(auto_price, platform=""):
     return format_price(value)
 
 
-def print_category_table_plain(categories, auto_category=""):
-    """Tabel kategori rapi untuk mode Termux biasa tanpa Rich."""
-    width = 72
-    border = "cyan"
-    col_count = 3
-    col_width = (width - 4) // col_count
-    print(term_color("┌" + "─" * (width - 2) + "┐", border, bold=True))
-    print(term_color("│", border, bold=True) + term_color(" DAFTAR KATEGORI ".center(width - 2), "white", bold=True) + term_color("│", border, bold=True))
-    print(term_color("├" + "─" * (width - 2) + "┤", border, bold=True))
-
-    items = []
-    for i, cat in enumerate(categories, start=1):
-        mark = "*" if str(cat).lower() == str(auto_category or "").lower() else " "
-        text = f"{i:>2}. {cat}{mark}"
-        if len(text) > col_width - 1:
-            text = text[:col_width - 4] + "..."
-        items.append(text.ljust(col_width))
-
-    for start in range(0, len(items), col_count):
-        row = items[start:start + col_count]
-        while len(row) < col_count:
-            row.append("".ljust(col_width))
-        content = " ".join(row)
-        content = content[:width - 2].ljust(width - 2)
-        print(term_color("│", border, bold=True) + term_color(content, "white") + term_color("│", border, bold=True))
-
-    print(term_color("└" + "─" * (width - 2) + "┘", border, bold=True))
-    print(term_color("Tanda * = kategori otomatis yang akan dipakai jika langsung ENTER.", "gray"))
-
-
 def input_category(auto_category, product_name):
     categories = get_categories(sync_file=True)
     computed = infer_category_from_name(product_name)
     auto_category = clean_category_name(computed or auto_category or "Atasan")
 
-    # Jangan jadikan nomor produk / nama fallback sebagai kategori baru.
-    # Contoh masalah lama: nama gagal terbaca -> "Produk 222" -> kategori otomatis jadi "222".
-    auto_raw = str(auto_category or "").strip()
-    if (
-        not auto_raw
-        or re.fullmatch(r"\d+", auto_raw)
-        or re.fullmatch(r"(?i)produk\s*\d+", str(product_name or "").strip())
-        or not re.search(r"[A-Za-zÀ-ÿ]", auto_raw)
-    ):
-        auto_category = "Atasan"
-
     panel(
-        f"Kategori otomatis: [bold yellow]{auto_category}[/]\n"
-        "Tekan ENTER kalau sudah sesuai, atau ketik nomor kategori dari tabel.",
+        f"Kategori otomatis dari nama produk: [bold yellow]{auto_category}[/]\n"
+        "Tekan ENTER kalau sudah sesuai, ketik nomor kategori lama, atau ketik nama kategori baru.",
         "Konfirmasi Kategori",
         "cyan"
     )
@@ -4033,15 +2524,15 @@ def input_category(auto_category, product_name):
 
     if RICH:
         table = Table(title="Daftar Kategori", box=box.ROUNDED, border_style="cyan")
-        table.add_column("No", justify="center", style="cyan", width=5)
+        table.add_column("No", justify="center", style="cyan")
         table.add_column("Kategori", style="white")
-        table.add_column("Status", justify="center", style="yellow", width=10)
         for i, cat in enumerate(categories, start=1):
-            status = "otomatis" if cat.lower() == auto_category.lower() else ""
-            table.add_row(str(i), cat, status)
+            label = f"{cat}  [dim](dipilih otomatis)[/]" if cat.lower() == auto_category.lower() else cat
+            table.add_row(str(i), label)
         console.print(table)
     else:
-        print_category_table_plain(categories, auto_category)
+        for i, cat in enumerate(categories, start=1):
+            print(f"{i}. {cat}")
 
     value = ask("Kategori produk", default=auto_category).strip()
     if not value:
@@ -4089,10 +2580,7 @@ def sync_github():
 
 def upload_github(message):
     if not Path(".git").exists():
-        warn(
-            "Perubahan tersimpan lokal, tapi upload otomatis tidak jalan karena folder ini bukan repo Git.\n"
-            "Pakai folder project lama yang ada .git, atau jalankan: git init + git remote add origin URL_REPO."
-        )
+        warn("Perubahan tersimpan lokal, tapi folder ini bukan repo Git.")
         return False
 
     if RICH:
@@ -4135,57 +2623,27 @@ def upload_github(message):
     err("Upload gagal. Jalankan git push manual untuk melihat detail.")
     return False
 
+
 def products_table(products):
-    """Tabel produk rapi: semua produk tampil, nama satu baris, kalau panjang jadi ..."""
-    rows = [normalize_product(p) for p in products]
-
     if RICH:
-        table = Table(
-            title=f"Daftar Produk ({len(rows)} item)",
-            box=box.ROUNDED,
-            border_style="cyan",
-            show_lines=False,
-            expand=True,
-        )
-        table.add_column("No", justify="center", style="white", width=6, no_wrap=True)
-        table.add_column("Nama Produk", style="white", width=38, no_wrap=True, overflow="ellipsis")
-        table.add_column("Kategori", style="cyan", width=13, no_wrap=True, overflow="ellipsis")
-        table.add_column("Harga", style="yellow", width=13, no_wrap=True, overflow="ellipsis")
-        table.add_column("Platform", style="white", width=10, no_wrap=True, overflow="ellipsis")
+        table = Table(title="Daftar Produk", box=box.ROUNDED, border_style="bright_black")
+        table.add_column("No", justify="center", style="cyan", width=5)
+        table.add_column("Nama Produk", style="white")
+        table.add_column("Kategori", style="yellow", width=16)
+        table.add_column("Harga", style="green", width=13)
+        table.add_column("Platform", style="magenta", width=10)
 
-        for p in rows:
-            name = clean_text(p.get("name", ""))
-            table.add_row(
-                str(p.get("id", "")),
-                name,
-                clean_text(p.get("category", "")),
-                clean_text(p.get("price", "")),
-                clean_text(p.get("platform", "")),
-            )
+        for p in products:
+            p = normalize_product(p)
+            table.add_row(p["id"], short(p["name"], 35), p["category"], p["price"], p["platform"])
         console.print(table)
     else:
-        width = 98
-        print("\n" + term_color("╔" + "═" * (width - 2) + "╗", "cyan", bold=True))
-        title = f" DAFTAR PRODUK ({len(rows)} ITEM) "
-        print(term_color("║", "cyan", bold=True) + term_color(title.center(width - 2), "white", bold=True) + term_color("║", "cyan", bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", "cyan", bold=True))
-        header = f"{'NO':<6} {'NAMA PRODUK':<42} {'KATEGORI':<13} {'HARGA':<13} {'PLATFORM':<10}"
-        print(term_color("║ ", "cyan", bold=True) + term_color(header[:width-4].ljust(width-4), "white", bold=True) + term_color(" ║", "cyan", bold=True))
-        print(term_color("╠" + "═" * (width - 2) + "╣", "cyan", bold=True))
-
-        for p in rows:
-            no = short(str(p.get("id", "")), 6)
-            nama = short(clean_text(p.get("name", "")), 42)
-            kategori = short(clean_text(p.get("category", "")), 13)
-            harga = short(clean_text(p.get("price", "")), 13)
-            platform = short(clean_text(p.get("platform", "")), 10)
-            row = f"{no:<6} {nama:<42} {kategori:<13} {harga:<13} {platform:<10}"
-            print(term_color("║ ", "cyan", bold=True) + row[:width-4].ljust(width-4) + term_color(" ║", "cyan", bold=True))
-
-        print(term_color("╚" + "═" * (width - 2) + "╝", "cyan", bold=True))
+        for p in products:
+            p = normalize_product(p)
+            print(f"{p['id']}. {p['name']} | {p['category']} | {p['price']} | {p['platform']}")
 
 
-def product_summary(p, title="Detail Produk"):
+def product_summary(p, title="Ringkasan Produk"):
     p = normalize_product(p)
     if RICH:
         table = Table.grid(padding=(0, 1))
@@ -4199,28 +2657,11 @@ def product_summary(p, title="Detail Produk"):
             ("Link", short(p["link"], 85)),
         ]
         for label, value in rows:
-            table.add_row(f"[bold cyan]{label}[/]", str(value))
-        console.print(Panel(table, title=f"[bold white]{title}[/]", border_style="cyan", box=box.ROUNDED))
+            table.add_row(f"[bold cyan]{label}[/]", value)
+        console.print(Panel(table, title=f"[bold yellow]{title}[/]", border_style="yellow", box=box.ROUNDED))
     else:
-        width = 72
-        border = "cyan"
-        print("\n" + box_line(width, color=border, top=True))
-        print(box_center(title, width, color="white", bold=True, border_color=border))
-        print(term_color("├" + "─" * (width - 2) + "┤", border, bold=True))
-        rows = [
-            ("No Produk", p["id"], "white"),
-            ("Nama", short(p["name"], 50), "white"),
-            ("Harga", p["price"], "yellow"),
-            ("Kategori", p["category"], "cyan"),
-            ("Platform", p["platform"], "white"),
-            ("Gambar", short(p["image"], 48), "gray"),
-            ("Link", short(p["link"], 48), "gray"),
-        ]
-        for label, value, color in rows:
-            label_text = f" {label:<10}: "
-            plain_len = len(label_text) + len(str(value))
-            print(term_color("│", border, bold=True) + term_color(label_text, "cyan", bold=True) + term_color(str(value), color, bold=(label in {"Harga", "No Produk"})) + " " * max(0, width - 2 - plain_len) + term_color("│", border, bold=True))
-        print(box_line(width, color=border, bottom=True))
+        print(title)
+        print(p)
 
 
 def build_product(pid, data, link, name, price, category):
@@ -4265,485 +2706,39 @@ def show_product_before_category(pid, name, price, platform, link):
             table.add_row(f"[bold cyan]{label}[/]", str(value))
         console.print(Panel(
             table,
-            title="[bold white]Cek Data Produk[/]",
-            subtitle="[dim]Pastikan nama dan harga sudah benar sebelum memilih kategori[/]",
-            border_style="cyan",
+            title="[bold yellow]Produk Sebelum Pilih Kategori[/]",
+            subtitle="[dim]Cek nama dulu, lalu tekan ENTER jika kategori otomatis sudah sesuai[/]",
+            border_style="yellow",
             box=box.ROUNDED,
         ))
     else:
-        width = 72
-        border = "cyan"
-        print("\n" + box_line(width, color=border, top=True))
-        print(box_center("CEK DATA PRODUK", width, color="white", bold=True, border_color=border))
-        print(term_color("├" + "─" * (width - 2) + "┤", border, bold=True))
-        rows = [
-            ("No Produk", str(pid), "white"),
-            ("Nama", short(name, 50), "white"),
-            ("Harga", price or "Cek harga", "yellow"),
-            ("Platform", platform or detect_platform(link), "cyan"),
-            ("Link", short(link, 48), "gray"),
-        ]
-        for label, value, color in rows:
-            label_text = f" {label:<10}: "
-            plain_len = len(label_text) + len(str(value))
-            print(term_color("│", border, bold=True) + term_color(label_text, "cyan", bold=True) + term_color(str(value), color, bold=(label in {"No Produk", "Harga"})) + " " * max(0, width - 2 - plain_len) + term_color("│", border, bold=True))
-        print(box_line(width, color=border, bottom=True))
-
-
-
-# =========================
-# Force Auto Nama Dari Link
-# =========================
-# Bagian ini tidak mengubah data produk lama. Fungsinya hanya menambah jalur
-# pencarian nama/foto dari link ketika marketplace tidak langsung memberi data.
-# Urutan: redirect -> HTML/meta/JSON -> URL asli -> metadata publik -> slug URL.
-
-def common_bad_product_name(value, pid=""):
-    title = clean_title(value or "")
-    low = title.lower().strip()
-    pid = str(pid or "").strip().lower()
-    if not low:
-        return True
-    if pid and low in {f"produk {pid}", f"product {pid}", pid}:
-        return True
-    bad_exact = {
-        "produk", "product", "item", "tokopedia", "shopee", "tiktok", "tiktok shop",
-        "toko online", "jual beli online", "login", "masuk", "captcha", "security check",
-        "akses ditolak", "just a moment", "attention required", "403 forbidden", "404 not found",
-    }
-    if low in bad_exact:
-        return True
-    if low.startswith(("tokopedia -", "shopee indonesia", "tiktok -", "login", "masuk", "captcha")):
-        return True
-    if any(x in low for x in ["verification", "robot", "cloudflare", "enable javascript"]):
-        return True
-    if len(low) < 5:
-        return True
-    if re.fullmatch(r"[a-z]{1,3}\d+|\d+|[-_./]+", low):
-        return True
-    return False
-
-
-def clean_common_product_name(value, pid=""):
-    name = unescape(decode_many(value or "", rounds=5))
-    name = name.replace("\\/", "/").replace("\\u002F", "/")
-    name = re.sub(r"<[^>]+>", " ", name)
-    name = re.sub(r"(?i)\s*(\||-|—|–|•|:)\s*(tokopedia|shopee|tiktok shop|tiktok|jual beli online.*|official store)\s*$", "", name)
-    name = re.sub(r"(?i)^\s*(cek|beli|lihat|checkout|order|pesan)\s+", "", name)
-    name = re.split(r"(?i)\s+dengan\s+harga\b|\s+harga\b|\s+Dapatkan\s+di\b|\s+Dapatkan\b|\s+sekarang\b", name, maxsplit=1)[0]
-    name = re.sub(r"(?i)\b(?:Rp\s*)?\d{1,3}(?:[\.\s]\d{2,3})+(?:,\d+)?\b", "", name)
-    name = re.sub(r"[\s\-|,.;:]+$", "", name).strip()
-    name = clean_title(name, max_len=180)
-    if common_bad_product_name(name, pid):
-        return ""
-    return name
-
-
-def extract_meta_content_regex(html, names):
-    values = []
-    if not html:
-        return values
-    decoded = decode_many(html, rounds=6)
-    name_alt = "|".join(re.escape(x) for x in names)
-    patterns = [
-        rf'<meta[^>]+(?:property|name|itemprop)=["\'](?:{name_alt})["\'][^>]+content=["\']([^"\']+)["\']',
-        rf'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name|itemprop)=["\'](?:{name_alt})["\']',
-    ]
-    for pat in patterns:
-        for m in re.findall(pat, decoded, re.I | re.S):
-            values.append(m)
-    return values
-
-
-def extract_name_candidates_from_html(html, final_url="", pid=""):
-    candidates = []
-    if not html:
-        html = ""
-    decoded = decode_many(html, rounds=8)
-    decoded = unescape(decoded).replace("\\/", "/").replace("\\u002F", "/").replace("\\u003A", ":").replace("\\u0026", "&").replace("\\u0022", '"')
-
-    candidates.extend(extract_meta_content_regex(decoded, [
-        "og:title", "twitter:title", "title", "product:title", "product_name", "name",
-    ]))
-
-    for pat in [
-        r"<title[^>]*>(.*?)</title>",
-        r'"(?:productName|product_name|productTitle|product_title|itemName|item_name|goodsName|goods_name|displayName|title|name)"\s*:\s*"([^"<>]{5,280})"',
-        r'"(?:seoTitle|seo_title|metaTitle|pageTitle)"\s*:\s*"([^"<>]{5,280})"',
-        r"(?im)^Title:\s*(.+)$",
-        r"(?im)^#\s+(.+)$",
-        r"(?i)nama\s+produk\s*[:=]\s*([^\n\r<>]{5,220})",
-    ]:
-        for m in re.findall(pat, decoded, re.I | re.S):
-            candidates.append(m)
-
-    for m in re.findall(r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', decoded, re.I | re.S):
-        try:
-            obj = json.loads(m.strip())
-            stack = [obj]
-            while stack:
-                cur = stack.pop()
-                if isinstance(cur, dict):
-                    typ = str(cur.get("@type") or cur.get("type") or "").lower()
-                    if "product" in typ and cur.get("name"):
-                        candidates.append(str(cur.get("name")))
-                    stack.extend(cur.values())
-                elif isinstance(cur, list):
-                    stack.extend(cur)
-        except Exception:
-            pass
-
-    slug = title_from_url_slug(final_url)
-    if slug:
-        candidates.append(slug)
-
-    cleaned = []
-    seen = set()
-    for cand in candidates:
-        cand = clean_common_product_name(cand, pid)
-        if not cand:
-            continue
-        key = cand.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        cleaned.append(cand)
-    return cleaned
-
-
-def score_product_name_candidate(name):
-    low = str(name or "").lower()
-    score = min(len(name), 160)
-    fashion_words = [
-        "gamis", "hijab", "jilbab", "pashmina", "khimar", "rok", "skirt", "baju", "kaos", "kemeja",
-        "dress", "maxi", "kulot", "celana", "outer", "cardigan", "blouse", "tunik", "abaya", "mukena",
-        "tas", "sepatu", "sandal", "wanita", "katun", "premium", "polos", "motif", "set", "oneset",
-    ]
-    if any(w in low for w in fashion_words):
-        score += 50
-    if len(str(name).split()) >= 3:
-        score += 20
-    if any(x in low for x in ["tokopedia", "shopee", "tiktok", "login", "jual beli online"]):
-        score -= 80
-    if re.search(r"\b(rp|harga|checkout|dapatkan|sekarang)\b", low):
-        score -= 25
-    return score
-
-
-def pick_best_product_name(candidates, pid=""):
-    best = ""
-    best_score = -999999
-    for cand in candidates or []:
-        name = clean_common_product_name(cand, pid)
-        if not name:
-            continue
-        score = score_product_name_candidate(name)
-        if score > best_score:
-            best_score = score
-            best = name
-    return best
-
-
-def extract_image_from_any_html(html):
-    try:
-        soup = BeautifulSoup(html, "html.parser") if BeautifulSoup else None
-        imgs = image_candidates(soup, html) if soup is not None else []
-        if imgs:
-            return imgs[0]
-    except Exception:
-        pass
-    return ""
-
-
-def fetch_metadata_services_all(session, url, pid="", logs=None):
-    logs = logs if isinstance(logs, list) else []
-    result = {"name": "", "image_url": "", "price": "", "final_url": url, "html": ""}
-    if not url or requests is None:
-        return result
-
-    clean_url = str(url).strip()
-    jina_targets = []
-    if clean_url.startswith("https://"):
-        jina_targets.extend([
-            "https://r.jina.ai/http://" + clean_url,
-            "https://r.jina.ai/http://" + clean_url.replace("https://", ""),
-        ])
-    elif clean_url.startswith("http://"):
-        jina_targets.extend([
-            "https://r.jina.ai/http://" + clean_url,
-            "https://r.jina.ai/http://" + clean_url.replace("http://", ""),
-        ])
-    else:
-        jina_targets.append("https://r.jina.ai/http://" + clean_url)
-
-    endpoints = [
-        ("microlink", "https://api.microlink.io/?" + urlencode({"url": url, "screenshot": "false", "meta": "false", "embed": "false"})),
-        ("jsonlink", "https://jsonlink.io/api/extract?" + urlencode({"url": url})),
-    ] + [("jina", x) for x in jina_targets]
-
-    for name, api in endpoints:
-        try:
-            headers = dict(HEADERS)
-            headers["Accept"] = "application/json,text/plain,text/html,*/*"
-            res = session.get(api, headers=headers, timeout=35, allow_redirects=True)
-            txt = res.text or ""
-            logs.append(f"SERVICE_{name}_STATUS={res.status_code} LEN={len(txt)}")
-            result["html"] += "\n" + txt[:150000]
-            if not txt:
-                continue
-            try:
-                js = res.json()
-            except Exception:
-                js = None
-            candidates = []
-            if isinstance(js, dict):
-                if name == "microlink":
-                    d = js.get("data") or {}
-                    candidates.extend([d.get("title"), d.get("description")])
-                    img = d.get("image") or d.get("logo") or {}
-                    if isinstance(img, dict):
-                        img = img.get("url") or img.get("src")
-                    if img and not result["image_url"]:
-                        result["image_url"] = normalize_image_value(str(img))
-                    if d.get("url"):
-                        result["final_url"] = d.get("url")
-                elif name == "jsonlink":
-                    candidates.extend([js.get("title"), js.get("description")])
-                    img = js.get("images") or js.get("image") or ""
-                    if isinstance(img, list) and img:
-                        img = img[0]
-                    if img and not result["image_url"]:
-                        result["image_url"] = normalize_image_value(str(img))
-                    if js.get("url"):
-                        result["final_url"] = js.get("url")
-                stack = [js]
-                while stack:
-                    cur = stack.pop()
-                    if isinstance(cur, dict):
-                        for key in ["title", "name", "productName", "product_name", "description"]:
-                            if cur.get(key):
-                                candidates.append(cur.get(key))
-                        stack.extend(cur.values())
-                    elif isinstance(cur, list):
-                        stack.extend(cur)
-            candidates.extend(extract_name_candidates_from_html(txt, result.get("final_url") or url, pid))
-            best = pick_best_product_name(candidates, pid)
-            if best and not result["name"]:
-                result["name"] = best
-            if not result["price"]:
-                pn = extract_price_from_html(txt[:120000])
-                if pn:
-                    result["price"] = format_price(pn)
-            if not result["image_url"]:
-                img = extract_image_from_any_html(txt)
-                if img:
-                    result["image_url"] = img
-            if result["name"]:
-                break
-        except Exception as e:
-            logs.append(f"SERVICE_{name}_ERR={type(e).__name__}: {e}")
-    return result
-
-
-def force_auto_product_from_link(link, product_id=""):
-    logs = []
-    result = {"name": "", "price": "", "image": "", "image_url": "", "final_url": link, "platform": detect_platform(link)}
-    session = get_scraper_session()
-    urls = [link]
-    htmls = []
-    platform = detect_platform(link)
-    logs.append(f"LINK={link}")
-    logs.append(f"PLATFORM={platform}")
-
-    try:
-        if "tokopedia" in str(link).lower():
-            td = tokopedia_super_extract(session, link, product_id, logs)
-            if td.get("final_url"):
-                urls.append(td["final_url"])
-                result["final_url"] = td["final_url"]
-            if td.get("name"):
-                result["name"] = clean_common_product_name(td["name"], product_id)
-            if td.get("price"):
-                result["price"] = td["price"]
-            if td.get("image_url"):
-                result["image_url"] = td["image_url"]
-            if td.get("html"):
-                htmls.append(td["html"])
-    except Exception as e:
-        logs.append(f"TOKPED_FORCE_ERR={type(e).__name__}: {e}")
-
-    try:
-        if "tiktok" in str(link).lower():
-            t_url, t_html = resolve_tiktok_short_link(session, link)
-            if t_url:
-                urls.append(t_url)
-                result["final_url"] = t_url
-            if t_html:
-                htmls.append(t_html)
-    except Exception as e:
-        logs.append(f"TIKTOK_FORCE_ERR={type(e).__name__}: {e}")
-
-    for referer in ["https://www.google.com/", "https://www.tokopedia.com/", "https://shopee.co.id/", "https://www.tiktok.com/"]:
-        try:
-            fu, html = session_get_text(session, link, referer=referer, timeout=35)
-            if fu:
-                urls.append(fu)
-            if html:
-                htmls.append(html)
-                urls.extend(extract_product_urls_from_text(html))
-                try:
-                    urls.extend(extract_urls_anywhere(html))
-                    urls.extend(extract_intent_and_deeplink_urls(html))
-                except Exception:
-                    pass
-        except Exception as e:
-            logs.append(f"GET_{referer}_ERR={type(e).__name__}: {e}")
-        try:
-            fu, html = curl_get_text_strong(link, referer=referer, timeout=35)
-            if fu:
-                urls.append(fu)
-            if html:
-                htmls.append(html)
-                urls.extend(extract_product_urls_from_text(html))
-                try:
-                    urls.extend(extract_urls_anywhere(html))
-                    urls.extend(extract_intent_and_deeplink_urls(html))
-                except Exception:
-                    pass
-        except Exception as e:
-            logs.append(f"CURL_{referer}_ERR={type(e).__name__}: {e}")
-
-    try:
-        if "tokopedia" in str(link).lower():
-            best_url = choose_best_product_url(urls, result.get("final_url") or link)
-        else:
-            best_url = resolve_short_link(session, link)[0] or result.get("final_url") or link
-        if best_url:
-            result["final_url"] = best_url
-            urls.insert(0, best_url)
-    except Exception:
-        pass
-
-    for u in list(dict.fromkeys([result.get("final_url"), link] + urls))[:12]:
-        if not u or not str(u).startswith("http"):
-            continue
-        for referer in ["https://www.google.com/", "https://www.tokopedia.com/"]:
-            try:
-                fu, html = session_get_text(session, u, referer=referer, timeout=35)
-                if fu:
-                    urls.append(fu)
-                    if title_from_url_slug(fu):
-                        result["final_url"] = fu
-                if html:
-                    htmls.append(html)
-            except Exception:
-                pass
-
-    combined = "\n".join(htmls)
-    logs.append(f"FORCE_URL_COUNT={len(urls)}")
-    logs.append(f"FORCE_HTML_LEN={len(combined)}")
-    logs.append(f"FORCE_FINAL_URL={result.get('final_url')}")
-
-    if not result["name"] or common_bad_product_name(result["name"], product_id):
-        candidates = []
-        for u in list(dict.fromkeys([result.get("final_url"), link] + urls)):
-            candidates.append(title_from_url_slug(u))
-        candidates.extend(extract_name_candidates_from_html(combined, result.get("final_url") or link, product_id))
-        best = pick_best_product_name(candidates, product_id)
-        if best:
-            result["name"] = best
-
-    if not result["price"]:
-        pn = extract_price_from_html(combined[:180000])
-        if pn:
-            result["price"] = format_price(pn)
-    if not result["image_url"]:
-        result["image_url"] = extract_image_from_any_html(combined)
-
-    if not result["name"] or common_bad_product_name(result["name"], product_id):
-        for u in list(dict.fromkeys([result.get("final_url"), link] + urls))[:6]:
-            md = fetch_metadata_services_all(session, u, product_id, logs)
-            if md.get("name") and not common_bad_product_name(md["name"], product_id):
-                result["name"] = md["name"]
-            if md.get("price") and not result["price"]:
-                result["price"] = md["price"]
-            if md.get("image_url") and not result["image_url"]:
-                result["image_url"] = md["image_url"]
-            if md.get("final_url"):
-                result["final_url"] = md["final_url"]
-            if result["name"] and not common_bad_product_name(result["name"], product_id):
-                break
-
-    if result.get("image_url"):
-        try:
-            result["image"] = download_image(result["image_url"], product_id)
-        except Exception as e:
-            logs.append(f"FORCE_IMAGE_DOWNLOAD_ERR={type(e).__name__}: {e}")
-            result["image"] = result["image_url"]
-
-    result["name"] = clean_common_product_name(result.get("name"), product_id)
-    logs.append(f"FORCE_NAME={result.get('name') or '-'}")
-    logs.append(f"FORCE_PRICE={result.get('price') or '-'}")
-    logs.append(f"FORCE_IMAGE={'yes' if result.get('image') or result.get('image_url') else '-'}")
-
-    try:
-        Path("auto_link_debug_last.txt").write_text("\n".join(logs), encoding="utf-8")
-    except Exception:
-        pass
-    return result
+        print("\nProduk sebelum pilih kategori")
+        print(f"No Produk : {pid}")
+        print(f"Nama      : {name}")
+        print(f"Harga     : {price or 'Cek harga'}")
+        print(f"Platform  : {platform or detect_platform(link)}")
+        print(f"Link      : {link}")
 
 
 def build_bulk_product(products, pid, raw_line, link):
     """Buat satu produk dari input bulk.
 
-    Nama dan gambar selalu dicoba otomatis dari link. Jika marketplace menutup data,
-    program menampilkan data yang berhasil diambil terlebih dahulu dan baru meminta
-    nama manual sebagai fallback supaya pemilihan kategori tetap tepat.
+    Alur baru:
+    - Shopee: nama/harga/gambar otomatis, user hanya konfirmasi kategori.
+    - TikTok/Tokopedia: nama/gambar dicoba otomatis, harga otomatis dari teks setelah link jika ada; jika tidak ada, manual, kategori dikonfirmasi.
+    - Semua image dipaksa ke public/assets/<no>.jpg.
     """
-    line_data = parse_input_line_data(raw_line, pid, link)
     share_data = parse_shopee_share_text(raw_line)
-    inline_price = line_data.get("price") or parse_inline_price_after_link(raw_line)
-    inline_name = line_data.get("name") or parse_inline_name_from_line(raw_line, pid, link)
+    inline_price = parse_inline_price_after_link(raw_line)
     platform = detect_platform(link)
     cached_product = find_cached_product_by_link(products, link)
 
-    fast_name = ""
-    fast_price = inline_price
-    if share_data.get("platform") == "Shopee" or platform == "Shopee":
-        fast_name = share_data.get("name") or inline_name
-        fast_price = share_data.get("price") or inline_price
-    else:
-        fast_name = inline_name
-
     if cached_product:
-        # Link sudah pernah dimasukkan. Pakai data lama dan langsung simpan
-        # nomor baru sebagai alias supaya produk tidak double.
         data = normalize_product(dict(cached_product))
-        data["platform"] = platform or data.get("platform")
+        data["platform"] = platform
         data["final_url"] = link
         data["link"] = link
         data["tiktokLink"] = link
-        cached_name = clean_title(data.get("name") or f"Produk {pid}", max_len=170)
-        cached_price = inline_price or data.get("price") or "Cek harga"
-        cached_category = data.get("category") or "Atasan"
-        show_product_before_category(pid, cached_name, cached_price, data.get("platform") or platform, link)
-        info(f"Link ini sudah ada di katalog. No {pid} akan digabung, bukan dibuat produk baru.")
-        product = build_product(pid, data, link, cached_name, cached_price, cached_category)
-        product["_merge_duplicate_link"] = True
-        return normalize_product(product)
-    elif fast_name and is_probably_product_name(fast_name):
-        # Mode cepat: jika nama/harga sudah ada di teks input, tidak perlu scraping marketplace.
-        # Ini membuat tambah produk massal jauh lebih cepat, terutama Shopee share text.
-        data = {
-            "name": clean_title(fast_name, max_len=170),
-            "price": fast_price or "Cek harga",
-            "category": infer_category_from_name(fast_name),
-            "image": str(fixed_asset_image_path(pid)).replace("\\", "/"),
-            "platform": platform,
-            "final_url": link,
-            "link": link,
-            "tiktokLink": link,
-        }
     else:
         if RICH:
             with console.status(f"[bold yellow]Mengambil data produk no {pid} dari {platform}...[/]", spinner="dots"):
@@ -4751,11 +2746,6 @@ def build_bulk_product(products, pid, raw_line, link):
         else:
             print(f"Mengambil data produk no {pid} dari {platform}...")
             data = fetch_product_data(link, pid)
-
-    # Nama dari teks input dipakai sebagai jalur paling pasti ketika marketplace menutup scraping.
-    # Contoh: "01. Cek Nama Produk dengan harga Rp106.000 ... link".
-    if inline_name and is_probably_product_name(inline_name):
-        data["name"] = inline_name
 
     # Prioritas Shopee share text karena lebih akurat daripada scrape halaman.
     if share_data.get("platform") == "Shopee" or platform == "Shopee":
@@ -4765,12 +2755,20 @@ def build_bulk_product(products, pid, raw_line, link):
         if share_data.get("price"):
             data["price"] = share_data["price"]
 
+    name = clean_title(data.get("name") or f"Produk {pid}") or f"Produk {pid}"
+    if (not is_probably_product_name(name)) or is_placeholder_product_name(name, pid):
+        warn(
+            f"Nama produk no {pid} belum terbaca otomatis.\n"
+            "Isi nama produk dulu supaya kategori otomatis bisa lebih tepat."
+        )
+        name = input_name(f"Produk {pid}")
+        name = clean_title(name, max_len=160)
+
     platform = data.get("platform") or platform
-    name = clean_title(data.get("name") or "")
 
     if inline_price:
         price = inline_price
-        info(f"Harga no {pid} otomatis dari teks input: {price}")
+        info(f"Harga no {pid} otomatis dari teks setelah link: {price}")
     elif platform in ["TikTok", "Tokopedia"]:
         panel(
             f"No produk: [bold yellow]{pid}[/]\n"
@@ -4789,42 +2787,11 @@ def build_bulk_product(products, pid, raw_line, link):
     else:
         price = input_price(data.get("price"), platform)
 
-    data["image"] = ensure_fixed_product_image(data.get("image"), pid)
-
-    # Wajib coba paksa ambil nama dari link sebelum kategori. Ini jalur tambahan
-    # supaya Tokopedia/TikTok/Shopee shortlink tetap dicoba semaksimal mungkin.
-    if not is_probably_product_name(name) or is_placeholder_product_name(name, pid):
-        if RICH:
-            with console.status(f"[bold yellow]Mencari nama produk otomatis dari link no {pid}...[/]", spinner="dots"):
-                forced = force_auto_product_from_link(link, pid)
-        else:
-            print(f"Mencari nama produk otomatis dari link no {pid}...")
-            forced = force_auto_product_from_link(link, pid)
-
-        forced_name = clean_title(forced.get("name") or "", max_len=170)
-        if forced_name and is_probably_product_name(forced_name) and not is_placeholder_product_name(forced_name, pid):
-            name = forced_name
-            data["name"] = forced_name
-            if forced.get("price") and (not price or price == "Cek harga"):
-                price = forced["price"]
-            if forced.get("image") or forced.get("image_url"):
-                data["image"] = forced.get("image") or forced.get("image_url")
-            if forced.get("final_url"):
-                data["final_url"] = forced.get("final_url")
-        else:
-            show_product_before_category(pid, f"Produk {pid}", price, platform, link)
-            warn(
-                f"Nama produk no {pid} belum berhasil terbaca otomatis dari link.\n"
-                "Semua metode sudah dicoba. Cek auto_link_debug_last.txt untuk penyebabnya.\n"
-                "Agar 100% pasti, masukkan nama produk sebelum link atau pakai teks share produk."
-            )
-            name = input_name(inline_name or data.get("name") or f"Produk {pid}")
-            name = clean_title(name, max_len=160)
-
-    # Setelah nama valid, tampilkan data final sebelum kategori.
+    # Penting: nama produk ditampilkan sebelum pemilihan kategori, supaya tidak bingung
+    # produk nomor ini sebenarnya barang apa.
     show_product_before_category(pid, name, price, platform, link)
-
     category = input_category(data.get("category"), name)
+    data["image"] = ensure_fixed_product_image(data.get("image"), pid)
 
     product = build_product(pid, data, link, name, price, category)
     product["image"] = ensure_fixed_product_image(product.get("image"), pid)
@@ -4834,6 +2801,7 @@ def build_bulk_product(products, pid, raw_line, link):
     product["tags"] = [category, platform]
     return normalize_product(product)
 
+
 def add_product():
     clear()
     show_header()
@@ -4842,12 +2810,12 @@ def add_product():
     panel(
         "[bold green]Tambah produk bisa satuan atau banyak sekaligus.[/]\n\n"
         "Contoh No Produk: [bold yellow]71-75[/] atau [bold yellow]71[/]\n"
-        "Contoh input banyak baris:\n"
-        "01. Cek Nama Produk dengan harga Rp106.000. Dapatkan di Shopee sekarang! https://s.shopee.co.id/xxxxx\n"
-        "02. https://vt.tokopedia.com/t/yyyyy/ harga 65.000\n\n"
-        "Shopee share text: nama diambil dari setelah Cek sampai sebelum dengan harga.\n"
-        "TikTok/Tokopedia: harga diambil dari kata harga; kalau nama ditulis sebelum link, nama langsung dipakai.\n"
-        "Field gambar otomatis menjadi public/assets/NO.jpg, contoh public/assets/01.jpg.",
+        "Contoh input link banyak baris:\n"
+        "71. https://vt.tokopedia.com/t/xxxxx/\n"
+        "72. https://vt.tokopedia.com/t/yyyyy/\n\n"
+        "TikTok/Tokopedia: nama dan gambar dicoba otomatis, harga bisa otomatis dari teks setelah link; jika tidak ada, manual. Kategori tetap dikonfirmasi.\n"
+        "Shopee: nama, harga, dan gambar otomatis; kategori tetap dikonfirmasi.\n"
+        "Field gambar otomatis menjadi public/assets/NO.jpg, contoh public/assets/71.jpg.",
         "Tambah Produk Otomatis",
         "green"
     )
@@ -4887,7 +2855,7 @@ def add_product():
             f"No Produk: [bold yellow]{pid}[/]\n"
             f"Platform: [bold magenta]{platform}[/]\n"
             f"Link: {short(link, 90)}",
-            "Memproses Produk",
+            "Proses Produk",
             "cyan"
         )
 
@@ -4915,7 +2883,11 @@ def choose_product(products):
         pause()
         return None, None
     products_table(products)
-    pid = ask("Masukkan No Produk").strip()
+    pid = ask("Masukkan No Produk", default="").strip()
+    if not pid:
+        warn("No produk tidak boleh kosong.")
+        pause()
+        return None, None
     for i, p in enumerate(products):
         if str(p.get("id")) == str(pid):
             return i, normalize_product(p)
@@ -4951,11 +2923,12 @@ def edit_product():
                 table.add_row(no, field)
             console.print(table)
         else:
-            print("\n" + term_color("MENU EDIT PRODUK", "cyan", bold=True))
-            edit_items = [("1", "Nama Produk"), ("2", "Harga"), ("3", "Kategori"), ("4", "Link Gambar"), ("5", "Link Produk"), ("0", "Simpan dan kembali")]
-            for no, label in edit_items:
-                no_color = "gray" if no == "0" else "white"
-                print(term_color(f"{no}. ", no_color, bold=True) + term_color(label, "white"))
+            print("1. Nama Produk")
+            print("2. Harga")
+            print("3. Kategori")
+            print("4. Link Gambar")
+            print("5. Link Produk")
+            print("0. Simpan dan kembali")
 
         choice = ask("Pilih menu", default="0").strip()
         if choice == "1":
@@ -4988,20 +2961,15 @@ def edit_product():
             pause()
             return
 
+
 def list_products():
     clear()
     show_header()
     products = normalize_all(load_products())
-    if not products:
+    if products:
+        products_table(products)
+    else:
         warn("Belum ada produk.")
-        pause()
-        return
-
-    products_table(products)
-    info(
-        f"Semua produk ditampilkan: {len(products)} kartu unik.\n"
-        "Nama produk dibuat satu baris; kalau terlalu panjang otomatis menjadi ..."
-    )
     pause()
 
 
@@ -5009,57 +2977,15 @@ def delete_product():
     clear()
     show_header()
     products = normalize_all(load_products())
-    if not products:
-        warn("Belum ada produk.")
-        pause()
+    idx, p = choose_product(products)
+    if p is None:
         return
-
-    panel(
-        "Semua produk ditampilkan di bawah.\n"
-        "Ketik nomor produk yang mau dihapus. Bisa nomor utama atau nomor alias.",
-        "Hapus Produk",
-        "cyan",
-    )
-
-    products_table(products)
-
-    pid = ask("Masukkan no produk yang akan dihapus", default="").strip()
-    idx = find_product_index_by_any_id(products, pid) if "find_product_index_by_any_id" in globals() else None
-    if idx is None:
-        for i, product in enumerate(products):
-            if str(product.get("id", "")).strip().lower() == pid.lower():
-                idx = i
-                break
-
-    if idx is None:
-        err("Produk tidak ditemukan. Pastikan nomor produk sesuai tabel.")
-        pause()
-        return
-
-    p = normalize_product(products[idx])
-    try:
-        ids_text = ", ".join(product_all_ids(p))
-    except Exception:
-        ids_text = p.get("id", "")
-
-    product_summary(p, "Konfirmasi Hapus Produk")
-    panel(
-        f"No terkait : {ids_text}\n"
-        f"Nama       : {short(p.get('name', ''), 80)}\n"
-        f"Harga      : {p.get('price', '')}\n"
-        f"Kategori   : {p.get('category', '')}\n\n"
-        "Produk yang dihapus tidak tampil lagi di katalog.",
-        "Cek Sebelum Hapus",
-        "yellow",
-    )
-
+    product_summary(p, "Produk yang Akan Dihapus")
     if ask_yes("Yakin hapus produk ini?", default=False):
         del products[idx]
-        save_products_sorted(products) if "save_products_sorted" in globals() else save_products(products)
-        ok("Produk berhasil dihapus.")
+        save_products(products)
+        ok("Produk dihapus.")
         upload_github(f"hapus produk {p['id']}")
-    else:
-        info("Batal menghapus produk.")
     pause()
 
 
@@ -5086,22 +3012,13 @@ def manage_categories():
                 menu.add_row(no, label)
             console.print(menu)
         else:
-            width = 72
-            border = "cyan"
-            print("\n" + term_color("╔" + "═" * (width - 2) + "╗", border, bold=True))
-            print(term_color("║", border, bold=True) + term_color(" KATEGORI KATALOG ".center(width - 2), "white", bold=True) + term_color("║", border, bold=True))
-            print(term_color("╠" + "═" * (width - 2) + "╣", border, bold=True))
             for i, cat in enumerate(categories, start=1):
                 count = sum(1 for p in products if str(p.get("category", "")).lower() == cat.lower())
-                row_text = f" {i:>2}.  {cat:<32} {count} produk"
-                print(term_color("║", border, bold=True) + term_color(row_text, "white") + " " * max(0, width - 2 - len(row_text)) + term_color("║", border, bold=True))
-            print(term_color("╠" + "═" * (width - 2) + "╣", border, bold=True))
-            menu_cat = [("1", "Tambah kategori"), ("2", "Ubah nama kategori"), ("3", "Hapus kategori"), ("0", "Kembali")]
-            for no, label in menu_cat:
-                row_text = f"  {no}.  {label}"
-                no_color = "gray" if no == "0" else "white"
-                print(term_color("║", border, bold=True) + term_color(f"  {no}.", no_color, bold=True) + term_color(f"  {label}", "white") + " " * max(0, width - 2 - len(row_text)) + term_color("║", border, bold=True))
-            print(term_color("╚" + "═" * (width - 2) + "╝", border, bold=True))
+                print(f"{i}. {cat} ({count} produk)")
+            print("1. Tambah kategori")
+            print("2. Ubah nama kategori")
+            print("3. Hapus kategori")
+            print("0. Kembali")
 
         choice = ask("Pilih menu", default="0").strip()
 
@@ -5173,40 +3090,16 @@ def manage_categories():
             err("Menu tidak valid.")
             time.sleep(1)
 
+
 def preview_web():
     clear()
     show_header()
-    info(
-        "Preview katalog aktif.\n\n"
-        "Buka dari HP yang sama:\n"
-        "http://127.0.0.1:8000\n\n"
-        "Tekan CTRL+C untuk berhenti."
-    )
+    info("Buka http://127.0.0.1:8000\nTekan CTRL+C untuk berhenti.")
     try:
         subprocess.run("python -m http.server 8000", shell=True)
     except KeyboardInterrupt:
         pass
 
-
-def run_admin_dashboard():
-    clear()
-    show_header()
-    if not Path("admin_app.py").exists():
-        err("File admin_app.py tidak ditemukan. Ekstrak ulang paket ZIP versi terbaru.")
-        pause()
-        return
-    info(
-        "Dashboard admin aktif.\n\n"
-        "Buka dari HP yang sama:\n"
-        "http://127.0.0.1:5000/admin\n\n"
-        "Untuk melihat katalog:\n"
-        "http://127.0.0.1:5000/\n\n"
-        "Tekan CTRL+C untuk berhenti."
-    )
-    try:
-        subprocess.run("python admin_app.py", shell=True)
-    except KeyboardInterrupt:
-        pass
 
 def main():
     ensure_files()
@@ -5241,7 +3134,6 @@ def main():
         else:
             err("Menu tidak valid.")
             time.sleep(1)
-
 
 
 if __name__ == "__main__":
