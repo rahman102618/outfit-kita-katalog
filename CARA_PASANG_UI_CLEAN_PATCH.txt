@@ -1,0 +1,21 @@
+CARA PASANG PATCH UI CLEAN
+
+Patch ini hanya mengganti file manage_products.py di folder katalog-1.
+Produk, gambar, public/products.json, dan file lain tidak disentuh.
+
+Jalankan di Termux:
+
+cd /storage/emulated/0/Termux/katalog-1
+cp manage_products.py manage_products_backup_sebelum_ui_clean.py
+unzip -o /sdcard/Download/Katalog_UI_Clean_Patch.zip -d /storage/emulated/0/Termux/katalog-1
+python manage_products.py
+
+Kalau nama folder project beda, ganti katalog-1 sesuai nama foldernya.
+
+Perubahan:
+- Tampilan header dibuat lebih clean.
+- Panduan tambah produk dibuat lebih rapi dan ringkas.
+- Teks input link dipersingkat.
+- Warning Pillow/Image.getdata yang muncul di bawah Proses Produk disembunyikan.
+- Input ask() dibuat aman agar tidak crash NoneType .strip().
+- Git safe.directory otomatis ditambahkan agar error dubious ownership berkurang.

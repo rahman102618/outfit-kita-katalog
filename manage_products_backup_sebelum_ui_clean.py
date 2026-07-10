@@ -12,7 +12,6 @@ import os
 import re
 import json
 import time
-import warnings
 import subprocess
 import hashlib
 from pathlib import Path
@@ -20,9 +19,6 @@ from datetime import datetime
 from urllib.parse import urlparse, unquote, parse_qs, urlencode
 from html import unescape
 from io import BytesIO
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings("ignore", message=r".*Image\.Image\.getdata.*")
 
 try:
     import requests
@@ -93,26 +89,19 @@ def printx(value="", style=None):
 
 
 def ask(label, default=None):
-    """Input aman untuk Termux/Rich.
-
-    Rich kadang mengembalikan None saat ENTER kosong atau input terputus.
-    Fungsi ini selalu mengembalikan string agar .strip() di bagian lain tidak crash.
-    """
-    default_text = "" if default is None else str(default)
     try:
         if RICH:
-            value = Prompt.ask(label, default=default_text)
+            value = Prompt.ask(label, default=str(default) if default is not None else "")
         else:
-            suffix = f" [{default_text}]" if default is not None else ""
-            value = input(f"{label}{suffix}: ")
+            value = input(f"{label}{' [' + str(default) + ']' if default is not None else ''}: ")
     except (EOFError, KeyboardInterrupt):
-        value = default_text
+        value = default if default is not None else ""
 
     if value is None:
-        value = default_text
+        value = default if default is not None else ""
 
     value = str(value).strip()
-    return value if value else default_text
+    return value if value else (str(default) if default is not None else "")
 
 
 def ask_yes(label, default=True):
@@ -155,30 +144,9 @@ def info(msg):
     panel(f"[bold cyan]{msg}[/]" if RICH else msg, "INFO", "cyan")
 
 
-def ensure_git_safe_directory():
-    """Otomatis whitelist repo Termux agar Git tidak error dubious ownership."""
-    if not Path(".git").exists():
-        return
-    try:
-        safe_path = str(Path.cwd().resolve())
-        check = subprocess.run(
-            ["git", "config", "--global", "--get-all", "safe.directory"],
-            text=True, capture_output=True
-        )
-        existing = (check.stdout or "") if check else ""
-        if safe_path not in existing.splitlines():
-            subprocess.run(
-                ["git", "config", "--global", "--add", "safe.directory", safe_path],
-                text=True, capture_output=True
-            )
-    except Exception:
-        pass
-
-
 def git_status_text():
     if not Path(".git").exists():
         return "Bukan Repo Git"
-    ensure_git_safe_directory()
     try:
         branch = subprocess.check_output(["git", "branch", "--show-current"], text=True).strip() or "main"
         status = subprocess.check_output(["git", "status", "--porcelain"], text=True).strip()
@@ -188,30 +156,24 @@ def git_status_text():
 
 
 def show_header():
-    status = git_status_text()
-    now_text = datetime.now().strftime("%Y-%m-%d %H:%M")
-
     if RICH:
-        head = Table.grid(expand=True, padding=(0, 1))
-        head.add_column(justify="center")
-        head.add_row("[bold black on bright_green]  OK OUTFIT KITA  [/]")
-        head.add_row("[bold white]Product Manager[/]")
-        head.add_row("[dim]Tambah Produk • Edit Katalog • Sync GitHub[/]")
-        head.add_row(f"[yellow]{now_text}[/]  [dim]|[/]  [cyan]{status}[/]")
+        title = Text(f"{APP_NAME} PRODUCT MANAGER", style="bold white")
+        subtitle = Text("Bulk Link Range • Harga Teks • Kategori Lebih Peka", style="bold yellow")
+        meta = Text(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} | {git_status_text()}", style="dim white")
         console.print(
             Panel(
-                head,
-                title="[bold black on green] KATALOG TERMUX [/]",
-                border_style="green",
-                box=box.ROUNDED,
+                Align.center(Text.assemble(title, "\n", subtitle, "\n", meta)),
+                title="[bold black on yellow] TERMUX KATALOG [/]",
+                border_style="bright_yellow",
+                box=box.DOUBLE_EDGE,
                 padding=(1, 2),
             )
         )
     else:
         print("=" * 60)
         print(f"{APP_NAME} PRODUCT MANAGER")
-        print("Tambah Produk • Edit Katalog • Sync GitHub")
-        print(now_text, "|", status)
+        print("Bulk Link Range • Harga Teks • Kategori Lebih Peka")
+        print(datetime.now().strftime("%Y-%m-%d %H:%M"), "|", git_status_text())
         print("=" * 60)
 
 
@@ -237,49 +199,6 @@ def show_menu():
     else:
         for no, label in items:
             print(f"{no}. {label}")
-
-
-def show_add_product_guide(default_id):
-    if RICH:
-        guide = Table.grid(padding=(0, 2))
-        guide.add_column(style="cyan", no_wrap=True)
-        guide.add_column(style="white")
-        next_range = f"{default_id}-{int(default_id)+4}" if str(default_id).isdigit() else str(default_id)
-        guide.add_row("Nomor", f"[bold yellow]{default_id}[/] untuk satu produk, atau [bold yellow]{next_range}[/] untuk banyak")
-        guide.add_row("Link", "Tempel 1 link atau banyak link bernomor, lalu ENTER kosong untuk mulai proses")
-        guide.add_row("Harga", "Otomatis jika ada di teks; kalau tidak terbaca, isi manual")
-        guide.add_row("Kategori", "Terdeteksi dari nama produk; cukup ENTER jika sudah benar")
-        guide.add_row("Gambar", "Otomatis tersimpan ke [bold]public/assets/NO.jpg[/]")
-
-        contoh = Table.grid(padding=(0, 1))
-        contoh.add_column(style="dim white")
-        contoh.add_row("Contoh banyak link:")
-        contoh.add_row("71. https://vt.tokopedia.com/t/xxxxx/ harga 75.000")
-        contoh.add_row("72. https://vt.tokopedia.com/t/yyyyy/ harga 89.000")
-
-        box_content = Table.grid(expand=True)
-        box_content.add_row("[bold green]Alur tambah produk dibuat ringkas, bersih, dan siap dipakai massal.[/]")
-        box_content.add_row("")
-        box_content.add_row(guide)
-        box_content.add_row("")
-        box_content.add_row(contoh)
-
-        console.print(
-            Panel(
-                box_content,
-                title="[bold green]Tambah Produk Otomatis[/]",
-                subtitle="[dim]ENTER kosong di akhir input link untuk memproses[/]",
-                border_style="green",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )
-    else:
-        next_range = f"{default_id}-{int(default_id)+4}" if str(default_id).isdigit() else str(default_id)
-        print("Tambah Produk Otomatis")
-        print(f"- No Produk: {default_id} atau range, contoh {next_range}")
-        print("- Tempel link satu/banyak baris, lalu ENTER kosong untuk proses.")
-        print("- Harga & kategori dibuat otomatis jika terbaca; jika tidak, isi manual.")
 
 
 def ensure_files():
@@ -480,10 +399,10 @@ def ask_multiline_links(label="Link Produk"):
     """
     if RICH:
         console.print(f"[bold cyan]{label}[/]")
-        console.print("[dim]Tempel link, ENTER kosong untuk selesai.[/]")
+        console.print("[dim]Boleh tempel banyak baris. Setelah selesai, tekan ENTER di baris kosong.[/]")
     else:
         print(label)
-        print("Tempel link, ENTER kosong untuk selesai.")
+        print("Boleh tempel banyak baris. Setelah selesai, tekan ENTER di baris kosong.")
 
     lines = []
     while True:
@@ -2588,8 +2507,8 @@ def input_category(auto_category, product_name):
     auto_category = clean_category_name(computed or auto_category or "Atasan")
 
     panel(
-        f"Otomatis: [bold yellow]{auto_category}[/]\n"
-        "ENTER = pakai otomatis | angka/nama = ganti",
+        f"Kategori otomatis dari nama produk: [bold yellow]{auto_category}[/]\n"
+        "Tekan ENTER kalau sudah sesuai, ketik nomor kategori lama, atau ketik nama kategori baru.",
         "Konfirmasi Kategori",
         "cyan"
     )
@@ -2650,7 +2569,6 @@ def sync_github():
     if not Path(".git").exists():
         warn("Folder ini bukan repo Git.")
         return False
-    ensure_git_safe_directory()
     info("Mengambil data terbaru dari GitHub...")
     result = run_cmd("git pull --rebase origin main", show=True)
     if result and result.returncode == 0:
@@ -2664,7 +2582,6 @@ def upload_github(message):
     if not Path(".git").exists():
         warn("Perubahan tersimpan lokal, tapi folder ini bukan repo Git.")
         return False
-    ensure_git_safe_directory()
 
     if RICH:
         with console.status("[bold yellow]Menyiapkan upload otomatis...[/]", spinner="dots"):
@@ -2789,8 +2706,8 @@ def show_product_before_category(pid, name, price, platform, link):
             table.add_row(f"[bold cyan]{label}[/]", str(value))
         console.print(Panel(
             table,
-            title="[bold yellow]Review Produk[/]",
-            subtitle="[dim]Pastikan nama dan harga benar sebelum kategori[/]",
+            title="[bold yellow]Produk Sebelum Pilih Kategori[/]",
+            subtitle="[dim]Cek nama dulu, lalu tekan ENTER jika kategori otomatis sudah sesuai[/]",
             border_style="yellow",
             box=box.ROUNDED,
         ))
@@ -2890,7 +2807,18 @@ def add_product():
     show_header()
     products = normalize_all(load_products())
     default_id = next_product_id(products)
-    show_add_product_guide(default_id)
+    panel(
+        "[bold green]Tambah produk bisa satuan atau banyak sekaligus.[/]\n\n"
+        "Contoh No Produk: [bold yellow]71-75[/] atau [bold yellow]71[/]\n"
+        "Contoh input link banyak baris:\n"
+        "71. https://vt.tokopedia.com/t/xxxxx/\n"
+        "72. https://vt.tokopedia.com/t/yyyyy/\n\n"
+        "TikTok/Tokopedia: nama dan gambar dicoba otomatis, harga bisa otomatis dari teks setelah link; jika tidak ada, manual. Kategori tetap dikonfirmasi.\n"
+        "Shopee: nama, harga, dan gambar otomatis; kategori tetap dikonfirmasi.\n"
+        "Field gambar otomatis menjadi public/assets/NO.jpg, contoh public/assets/71.jpg.",
+        "Tambah Produk Otomatis",
+        "green"
+    )
 
     pid_input = ask("No Produk / range", default=default_id).strip()
     requested_ids = split_product_ids(pid_input)
@@ -2955,7 +2883,11 @@ def choose_product(products):
         pause()
         return None, None
     products_table(products)
-    pid = ask("Masukkan No Produk").strip()
+    pid = ask("Masukkan No Produk", default="").strip()
+    if not pid:
+        warn("No produk tidak boleh kosong.")
+        pause()
+        return None, None
     for i, p in enumerate(products):
         if str(p.get("id")) == str(pid):
             return i, normalize_product(p)
